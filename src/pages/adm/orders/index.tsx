@@ -44,84 +44,82 @@ export default function AdminOrders({ orders }: { orders: Order[] }) {
     <AdminLayout url="order">
       <NextHeadSeo title="注文 - EMC Shop Admin" />
       <h2 className="text-2xl font-bold">注文</h2>
-      {orders.length > 0 && (
-        <table className="w-full my-4">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header, i) => (
-                  <th
-                    key={header.id}
-                    colSpan={header.colSpan}
-                    className={twMerge(
-                      "bg-white py-2",
-                      i === 0 && "rounded-tl-md",
-                      i === headerGroup.headers.length - 1 && "rounded-tr-md"
-                    )}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => {
-              return (
-                <tr key={row.id} className="text-center bg-white border-t">
-                  {row.getVisibleCells().map((cell, i) => {
-                    return (
-                      <td key={cell.id} className="py-2">
-                        {i === 0 ? (
-                          <Link
-                            className="text-sky-500 hover:underline"
-                            href={`/adm/orders/${cell.getContext().getValue()}`}
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </Link>
-                        ) : columns[i]["accessorKey"] === "userId" ? (
-                          <Link
-                            className="text-sky-500 hover:underline"
-                            href={`/adm/users/${cell.getContext().getValue()}`}
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </Link>
-                        ) : columns[i]["accessorKey"] === "itemId" ? (
-                          <Link
-                            className="text-sky-500 hover:underline"
-                            href={`/adm/items/${cell.getContext().getValue()}`}
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </Link>
-                        ) : (
-                          flexRender(
+      <table className="w-full my-4">
+        <thead>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header, i) => (
+                <th
+                  key={header.id}
+                  colSpan={header.colSpan}
+                  className={twMerge(
+                    "bg-white py-2",
+                    i === 0 && "rounded-tl-md",
+                    i === headerGroup.headers.length - 1 && "rounded-tr-md"
+                  )}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map((row) => {
+            return (
+              <tr key={row.id} className="text-center bg-white border-t">
+                {row.getVisibleCells().map((cell, i) => {
+                  return (
+                    <td key={cell.id} className="py-2">
+                      {i === 0 ? (
+                        <Link
+                          className="text-sky-500 hover:underline"
+                          href={`/adm/orders/${cell.getContext().getValue()}`}
+                        >
+                          {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
-                          )
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+                          )}
+                        </Link>
+                      ) : columns[i]["accessorKey"] === "userId" ? (
+                        <Link
+                          className="text-sky-500 hover:underline"
+                          href={`/adm/users/${cell.getContext().getValue()}`}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Link>
+                      ) : columns[i]["accessorKey"] === "itemId" ? (
+                        <Link
+                          className="text-sky-500 hover:underline"
+                          href={`/adm/items/${cell.getContext().getValue()}`}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Link>
+                      ) : (
+                        flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </AdminLayout>
   );
 }
