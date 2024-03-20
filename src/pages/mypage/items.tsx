@@ -7,6 +7,7 @@ import Layout from "@/components/Layout";
 import ItemCard from "@/components/ItemCard";
 import { IoMdArrowBack } from "react-icons/io";
 import { useRouter } from "next/router";
+import NextHeadSeo from "next-head-seo";
 
 type UserWithItems = Prisma.UserGetPayload<{
   include: {
@@ -23,6 +24,18 @@ export default function UserPage({ user }: { user: UserWithItems }) {
   const router = useRouter();
   return (
     <Layout>
+      <NextHeadSeo
+        title="出品した商品 - EMC Shop"
+        description="出品した商品"
+        canonical={`https://shop.emcmusic.net/mypage/items`}
+        og={{
+          title: "出品した商品 - EMC Shop",
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="max-w-3xl mx-auto text-left">
         <h3 className="text-xl font-bold py-2 flex items-center gap-4">
           <button onClick={() => router.back()}>

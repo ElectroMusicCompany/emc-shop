@@ -15,6 +15,7 @@ import { ja } from "date-fns/locale";
 import nl2br from "react-nl2br";
 import toast from "react-hot-toast";
 import Rating from "@/components/Rating";
+import NextHeadSeo from "next-head-seo";
 
 type Order = Prisma.OrderGetPayload<{
   include: {
@@ -75,6 +76,18 @@ export default function Transaction({
   };
   return (
     <Layout>
+      <NextHeadSeo
+        title={`${order.item.name}の取引 - EMC Shop`}
+        description={`${order.item.name}の取引`}
+        canonical={`https://shop.emcmusic.net/transaction/${order.id}`}
+        og={{
+          title: `${order.item.name}の取引 - EMC Shop`,
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="order-last lg:order-first lg:col-span-1 text-left">
           <h3 className="text-xl font-bold py-2 mb-2">取引情報</h3>

@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import AddressModal from "@/components/AddressModal";
 import toast from "react-hot-toast";
+import NextHeadSeo from "next-head-seo";
 
 type UserWithAddresses = Prisma.UserGetPayload<{
   include: { address: true };
@@ -20,6 +21,18 @@ export default function MyPageAddresses({ user }: { user: UserWithAddresses }) {
   const router = useRouter();
   return (
     <Layout>
+      <NextHeadSeo
+        title="住所一覧 - EMC Shop"
+        description="住所一覧"
+        canonical={`https://shop.emcmusic.net/mypage/addresses`}
+        og={{
+          title: "住所一覧 - EMC Shop",
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="max-w-3xl mx-auto text-left">
         <h3 className="text-xl font-bold py-2 flex items-center gap-4">
           <button onClick={() => router.back()}>

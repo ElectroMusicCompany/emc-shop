@@ -9,6 +9,7 @@ import Reviews from "@/components/Reviews";
 import ItemCard from "@/components/ItemCard";
 import ReactMarkdown from "react-markdown";
 import Link from "next/link";
+import NextHeadSeo from "next-head-seo";
 
 type UserWithItems = Prisma.UserGetPayload<{
   include: {
@@ -31,6 +32,18 @@ export default function UserPage({
 }) {
   return (
     <Layout>
+      <NextHeadSeo
+        title={`${user.name}の出品した商品 - EMC Shop`}
+        description="${user.name}の出品した商品"
+        canonical={`https://shop.emcmusic.net/user/profile/${user.id}`}
+        og={{
+          title: "${user.name}の出品した商品 - EMC Shop",
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between max-w-3xl gap-6">
           <Image

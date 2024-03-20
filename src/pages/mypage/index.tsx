@@ -6,10 +6,23 @@ import { authOptions } from "../api/auth/[...nextauth]";
 import { User } from "@prisma/client";
 import Link from "next/link";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import NextHeadSeo from "next-head-seo";
 
 export default function MyPage({ user }: { user: User }) {
   return (
     <Layout>
+      <NextHeadSeo
+        title="マイページ - EMC Shop"
+        description="マイページ"
+        canonical={`https://shop.emcmusic.net/mypage`}
+        og={{
+          title: "マイページ - EMC Shop",
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="max-w-3xl mx-auto text-left">
         <h3 className="text-xl font-bold py-2">マイページ</h3>
         <h4 className="text-lg font-bold py-4">商品管理</h4>

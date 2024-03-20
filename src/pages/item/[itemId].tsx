@@ -16,6 +16,7 @@ import Image from "next/image";
 import nl2br from "react-nl2br";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
+import NextHeadSeo from "next-head-seo";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   include: {
@@ -65,6 +66,18 @@ export default function ItemPage({
   }, []);
   return (
     <Layout>
+      <NextHeadSeo
+        title={`${item.name} - EMC Shop`}
+        description={`${item.name} | ¥${item.price}`}
+        canonical={`https://shop.emcmusic.net/item/${item.id}`}
+        og={{
+          title: `${item.name} - EMC Shop`,
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="relative w-full h-96">
           <Image

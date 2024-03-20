@@ -1,15 +1,11 @@
 import { db } from "@/lib/prisma";
 import { GetServerSideProps } from "next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { getServerSession } from "next-auth/next";
 import type { Prisma } from "@prisma/client";
 import Layout from "@/components/Layout";
 import Image from "next/image";
 import Reviews from "@/components/Reviews";
-import ItemCard from "@/components/ItemCard";
-import ReactMarkdown from "react-markdown";
-import Link from "next/link";
 import ReviewList from "@/components/ReviewList";
+import NextHeadSeo from "next-head-seo";
 
 type UserWithItems = Prisma.UserGetPayload<{
   include: {
@@ -33,6 +29,18 @@ export default function ReviewPage({
 }) {
   return (
     <Layout>
+      <NextHeadSeo
+        title={`${user.name}の評価一覧 - EMC Shop`}
+        description="${user.name}の評価一覧"
+        canonical={`https://shop.emcmusic.net/user/reviews/${user.id}`}
+        og={{
+          title: "${user.name}の評価一覧 - EMC Shop",
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-1 p-4 border">
           <Image

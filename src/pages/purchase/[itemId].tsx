@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import AddressModal from "@/components/AddressModal";
+import NextHeadSeo from "next-head-seo";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   include: {
@@ -37,6 +38,18 @@ export default function Purchase({
   const router = useRouter();
   return (
     <Layout>
+      <NextHeadSeo
+        title={`購入 - EMC Shop`}
+        description={`${item.name}の購入`}
+        canonical={`https://shop.emcmusic.net/purchase/${item.id}`}
+        og={{
+          title: `購入 - EMC Shop`,
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       {router.query.canceled && (
         <div className="bg-red-200 border border-red-500 text-red-700 rounded-md mb-4">
           <div className="max-w-3xl mx-auto p-4">

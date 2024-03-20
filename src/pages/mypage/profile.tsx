@@ -8,6 +8,7 @@ import { IoMdArrowBack } from "react-icons/io";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import NextHeadSeo from "next-head-seo";
 
 export default function MyPageAddresses({ user }: { user: User }) {
   const router = useRouter();
@@ -34,6 +35,18 @@ export default function MyPageAddresses({ user }: { user: User }) {
   };
   return (
     <Layout>
+      <NextHeadSeo
+        title="プロフィール設定 - EMC Shop"
+        description="プロフィール設定"
+        canonical={`https://shop.emcmusic.net/mypage/profile`}
+        og={{
+          title: "プロフィール設定 - EMC Shop",
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="max-w-3xl mx-auto text-left">
         <h3 className="text-xl font-bold py-2 flex items-center gap-4">
           <button onClick={() => router.back()}>

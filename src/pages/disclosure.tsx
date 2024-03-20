@@ -1,35 +1,40 @@
 import Layout from "@/components/Layout";
+import NextHeadSeo from "next-head-seo";
+import { GetStaticProps } from "next";
+import { readFile } from "fs/promises";
+import path from "path";
+import ReactMarkdown from "react-markdown";
 
-export default function disclosure() {
+export default function disclosure({ content }: { content: string }) {
   return (
     <Layout>
+      <NextHeadSeo
+        title="特定商取引法に基づく表記 - EMC Shop"
+        description="特定商取引法に基づく表記"
+        canonical="https://shop.emcmusic.net/disclosure"
+        og={{
+          title: "特定商取引法に基づく表記 - EMC Shop",
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="prose prose-sm max-w-none text-left">
-        <h1>特定商取引法に基づく表記</h1>
-        <p>
-          この利用規約（以下，「本規約」といいます。）は，本サービスの運営者（以下，「運営者」といいます。）がこのウェブサイト上で提供するサービス（以下，「本サービス」といいます。）の利用条件を定めるものです。
-        </p>
-        <h2>第1条（適用）</h2>
-        <ol>
-          <li>
-            本規約は，利用者と運営者との間の本サービスの利用に関わる一切の関係に適用されるものとします。
-          </li>
-        </ol>
-        <h2>第2条（利用登録）</h2>
-        <ol>
-          <li>
-            登録希望者が運営者の定める方法によって利用登録を申請し，運営者がこれを承認することによって，利用登録が完了するものとします。
-          </li>
-          <li>
-            運営者は，利用登録申請者に以下の事由があると判断した場合，利用登録の承認を留保することができるものとします。
-            <ol>
-              <li>利用登録申請に際して虚偽の事項を届け出た場合</li>
-              <li>本規約に違反したことがある者からの申請である場合</li>
-              <li>その他，運営者が利用登録を相当でないと判断した場合</li>
-            </ol>
-          </li>
-        </ol>
-        <h2>第3条（ユーザーIDおよび</h2>
+        <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     </Layout>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const fileContent = await readFile(
+    path.resolve("src", "terms", `disclosure.md`)
+  );
+  const content = fileContent.toString();
+  return {
+    props: {
+      content,
+    },
+  };
+};

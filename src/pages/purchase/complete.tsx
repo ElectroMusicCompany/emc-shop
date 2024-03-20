@@ -2,12 +2,25 @@ import Link from "next/link";
 import Layout from "@/components/Layout";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { useRouter } from "next/router";
+import NextHeadSeo from "next-head-seo";
 
 export default function Complete() {
   const router = useRouter();
   const { itemId, orderId } = router.query;
   return (
     <Layout>
+      <NextHeadSeo
+        title={`購入完了 - EMC Shop`}
+        description={`商品を購入しました！`}
+        canonical={`https://shop.emcmusic.net/purchase/complete`}
+        og={{
+          title: `購入完了 - EMC Shop`,
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       <div className="max-w-3xl mx-auto flex flex-col items-center">
         <IoMdCheckmarkCircleOutline size={96} className="text-green-500" />
         <h1 className="text-3xl font-bold py-8">購入が完了しました</h1>
