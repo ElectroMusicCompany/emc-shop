@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(cuid())
+  name        String?
+  description String?
+  avatar      String?
+  stripeId    String?
+  admin       Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  items       Item[]
+  orders      Order[]
+  address     Address[]
+  favorite    Favorite[]
+  comments    Comment[]
+  chats       Chat[]
+  reviews     Review[]
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  // 姓
+  lastName  String
+  // 名
+  firstName String
+  // 建物名
+  building  String?
+  // 番地
+  street    String
+  // 市区町村
+  city      String
+  // 都道府県
+  state     String
+  // 郵便番号
+  zip       String
+  // 電話番号
+  phone     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  orders    Order[]
+}
+
+model Item {
+  id          String     @id @default(cuid())
+  name        String
+  price       Int
+  description String?
+  state       String
+  shipping    String
+  stripe      Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  order       Order?
+  images      Image[]
+  favorite    Favorite[]
+  comments    Comment[]
+  reviews     Review[]
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  format    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  itemId    String?
+  item      Item?    @relation(fields: [itemId], references: [id])
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  item      Item     @relation(fields: [itemId], references: [id])
+  itemId    String   @unique
+  sessionId String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  complete  Boolean  @default(false)
+  shipped   Boolean  @default(false)
+  tracking  String?
+  address   Address  @relation(fields: [addressId], references: [id])
+  addressId String
+  chats     Chat[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  text      String
+  rating    Boolean  @default(true)
+  buyer     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+}
