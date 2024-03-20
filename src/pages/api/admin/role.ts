@@ -20,10 +20,11 @@ export default async function handler(
     if (!user?.admin) {
       return res.status(401).json({ status: "error", message: "Unauthorized" });
     }
-    const { admin, userId } = req.body;
+    const { admin, userId, stripeId } = req.body;
     const n = await db.user.update({
       data: {
-        admin: admin === "true"
+        admin: admin === "true",
+        stripeId: stripeId,
       },
       where: {
         id: userId,

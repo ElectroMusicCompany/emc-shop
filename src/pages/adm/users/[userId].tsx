@@ -22,6 +22,7 @@ export default function AdminItems({ user }: { user: User }) {
       },
       body: JSON.stringify({
         admin: data.admin,
+        stripeId: data.stripeId,
         userId: user.id,
       }),
     });
@@ -114,7 +115,6 @@ export default function AdminItems({ user }: { user: User }) {
               id="stripe"
               type="text"
               placeholder="Stripe"
-              disabled
               {...register("stripeId")}
             />
           </div>
