@@ -4,34 +4,34 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { MdOutlinePhotoCamera, MdOutlineClose } from "react-icons/md";
 import { useDropzone } from "react-dropzone";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import { db } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { GetServerSideProps } from "next";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import Link from "next/link";
 
 type Inputs = {
   images: Array<File>;
   name: string;
   description?: string;
-  state:
-    | "新品・未開封"
-    | "未使用に近い"
-    | "目立った傷や汚れなし"
-    | "やや傷や汚れあり"
-    | "傷や汚れあり"
-    | "全体的に状態が悪い";
+  state: string;
   shipping: string;
   shipping_other?: string;
   stripe: boolean;
   price: number;
 };
 
-export default function Sell({ user }: { user: User }) {
+type Item = Prisma.ItemGetPayload<{
+  include: {
+    images: true;
+  };
+}>;
+
+export default function Sell({ user, item }: { user: User; item?: Item }) {
   const router = useRouter();
   const {
     register,
@@ -77,31 +77,64 @@ export default function Sell({ user }: { user: User }) {
           throw new Error("Failed to upload image");
         }
       }
-      const res = await (
-        await fetch(`/api/item/create`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            images: mediaIds,
-            name: data.name,
-            description: data.description,
-            state: data.state,
-            shipping:
-              data.shipping === "その他" ? data.shipping_other : data.shipping,
-            stripe: data.stripe,
-            price: data.price,
-          }),
-        })
-      ).json();
-      if (res.status !== "success") {
-        throw new Error("Failed to create item");
+      if (item) {
+        const res = await (
+          await fetch(`/api/item/create`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              images: mediaIds,
+              name: data.name,
+              description: data.description,
+              state: data.state,
+              shipping:
+                data.shipping === "その他"
+                  ? data.shipping_other
+                  : data.shipping,
+              stripe: data.stripe,
+              price: data.price,
+              itemId: item.id,
+            }),
+          })
+        ).json();
+        if (res.status !== "success") {
+          throw new Error("Failed to create item");
+        }
+        toast.success("商品を編集しました", {
+          id: toastId,
+        });
+        router.push(`/item/${res.itemId}`);
+      } else {
+        const res = await (
+          await fetch(`/api/item/create`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              images: mediaIds,
+              name: data.name,
+              description: data.description,
+              state: data.state,
+              shipping:
+                data.shipping === "その他"
+                  ? data.shipping_other
+                  : data.shipping,
+              stripe: data.stripe,
+              price: data.price,
+            }),
+          })
+        ).json();
+        if (res.status !== "success") {
+          throw new Error("Failed to create item");
+        }
+        toast.success("商品を出品しました", {
+          id: toastId,
+        });
+        router.push(`/item/${res.itemId}`);
       }
-      toast.success("商品を出品しました", {
-        id: toastId,
-      });
-      router.push(`/item/${res.itemId}`);
     } catch (error) {
       toast.error("画像のアップロードに失敗しました", {
         id: toastId,
@@ -110,14 +143,54 @@ export default function Sell({ user }: { user: User }) {
     }
   };
 
+  const shipping = [
+    "未定",
+    "宅急便（ヤマト運輸）",
+    "宅配便（佐川急便）",
+    "ゆうパック",
+    "ゆうメール",
+    "ゆうパケット",
+    "レターパックライト",
+    "レターパックプラス",
+    "クリックポスト",
+    "スマートレター",
+    "定形外郵便",
+    "手渡し",
+    "その他",
+  ];
+
+  const state = [
+    "新品・未開封",
+    "未使用に近い",
+    "目立った傷や汚れなし",
+    "やや傷や汚れあり",
+    "傷や汚れあり",
+    "全体的に状態が悪い",
+  ];
+
+  useEffect(() => {
+    if (item) {
+      setValue("name", item.name);
+      setValue("description", item.description || "");
+      setValue("state", item.state);
+      setValue(
+        "shipping",
+        shipping.includes(item.shipping) ? item.shipping : "その他"
+      );
+      setValue(
+        "shipping_other",
+        shipping.includes(item.shipping) ? "" : item.shipping
+      );
+      setValue("stripe", item.stripe);
+      setValue("price", item.price);
+    }
+  }, []);
+
   return (
     <Layout>
       {session ? (
-        <div>
-          <form
-            className="max-w-xl mx-auto text-start"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+        <div className="max-w-xl mx-auto ">
+          <form onSubmit={handleSubmit(onSubmit)}>
             <h3 className="text-xl font-bold text-left py-4">出品する</h3>
             <div className="flex flex-col mb-4">
               <div className="flex mb-2">
@@ -347,11 +420,41 @@ export default function Sell({ user }: { user: User }) {
             <button
               type="submit"
               disabled={!isValid && !user.stripeId}
-              className="w-full bg-sky-500 text-white py-2 rounded-md my-4 font-medium duration-150 hover:opacity-80 disabled:opacity-80 disabled:cursor-not-allowed"
+              className="w-full bg-sky-500 text-white py-2 rounded-md my-4 font-medium duration-150 hover:bg-sky-600 disabled:bg-gray-400"
             >
               出品する
             </button>
           </form>
+          {item && (
+            <button
+              disabled={!isValid && !user.stripeId}
+              onClick={async () => {
+                const loading = toast.loading("削除中...");
+                const res = await fetch("/api/item/delete", {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    id: item.id,
+                  }),
+                });
+                if (res.status !== 200) {
+                  toast.error("エラーが発生しました", {
+                    id: loading,
+                  });
+                  return;
+                }
+                toast.success("削除しました", {
+                  id: loading,
+                });
+                router.push("/");
+              }}
+              className="w-full bg-red-500 text-white py-2 rounded-md my-4 font-medium duration-150 hover:bg-red-600"
+            >
+              削除する
+            </button>
+          )}
         </div>
       ) : (
         <div>ログインしてください</div>
@@ -362,6 +465,8 @@ export default function Sell({ user }: { user: User }) {
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  // query
+  const itemId = ctx.query.edit as string;
   if (!session) {
     return {
       redirect: {
@@ -373,6 +478,30 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const user = await db.user.findUnique({
     where: { id: session.user.id },
   });
+  if (itemId) {
+    const item = await db.item.findUnique({
+      where: {
+        id: itemId,
+      },
+      include: {
+        images: true,
+        order: true,
+      },
+    });
+    if (!item || item.order) {
+      return {
+        props: {
+          user: JSON.parse(JSON.stringify(user)),
+        },
+      };
+    }
+    return {
+      props: {
+        user: JSON.parse(JSON.stringify(user)),
+        item: JSON.parse(JSON.stringify(item)),
+      },
+    };
+  }
   return {
     props: {
       user: JSON.parse(JSON.stringify(user)),

@@ -241,6 +241,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         address: true,
       },
     });
+    if (user?.id === item?.userId) {
+      return {
+        redirect: {
+          destination: `/item/${item?.id}`,
+          permanent: false,
+        },
+      };
+    }
     return {
       props: {
         item: JSON.parse(JSON.stringify(item)),

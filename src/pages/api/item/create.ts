@@ -9,37 +9,74 @@ export default async function handler(
 ) {
   const session = await getServerSession(req, res, authOptions);
   if (session) {
-    const item = await db.item.create({
-      data: {
-        name: req.body.name,
-        description: req.body.description,
-        state: req.body.state,
-        shipping:
-          req.body.shipping === "その他" ? req.body.shipping_other! : req.body.shipping,
-        stripe: req.body.stripe,
-        price: Number(req.body.price),
-        user: {
-          connect: {
-            id: session?.user?.id,
-          },
-        },
-      },
-    });
-    for (const mediaId of req.body.images) {
-      await db.image.update({
+    if (req.body.itemId) {
+      const item = await db.item.update({
         where: {
-          id: mediaId,
+          id: req.body.itemId,
         },
         data: {
-          item: {
+          name: req.body.name,
+          description: req.body.description,
+          state: req.body.state,
+          shipping:
+            req.body.shipping === "その他" ? req.body.shipping_other! : req.body.shipping,
+          stripe: req.body.stripe,
+          price: Number(req.body.price),
+          user: {
             connect: {
-              id: item.id,
+              id: session?.user?.id,
             },
           },
         },
       });
+      for (const mediaId of req.body.images) {
+        await db.image.update({
+          where: {
+            id: mediaId,
+          },
+          data: {
+            item: {
+              connect: {
+                id: item.id,
+              },
+            },
+          },
+        });
+      }
+      res.status(200).json({ status: "success", itemId: item.id});
+    } else {
+      const item = await db.item.create({
+        data: {
+          name: req.body.name,
+          description: req.body.description,
+          state: req.body.state,
+          shipping:
+            req.body.shipping === "その他" ? req.body.shipping_other! : req.body.shipping,
+          stripe: req.body.stripe,
+          price: Number(req.body.price),
+          user: {
+            connect: {
+              id: session?.user?.id,
+            },
+          },
+        },
+      });
+      for (const mediaId of req.body.images) {
+        await db.image.update({
+          where: {
+            id: mediaId,
+          },
+          data: {
+            item: {
+              connect: {
+                id: item.id,
+              },
+            },
+          },
+        });
+      }
+      res.status(200).json({ status: "success", itemId: item.id});
     }
-    res.status(200).json({ status: "success", itemId: item.id});
   } else {
     res.status(401).json({ status: "error", error: "Unauthorized" });
   }

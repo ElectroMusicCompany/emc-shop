@@ -17,6 +17,7 @@ import nl2br from "react-nl2br";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import NextHeadSeo from "next-head-seo";
+import { twMerge } from "tailwind-merge";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   include: {
@@ -52,6 +53,7 @@ export default function ItemPage({
 }) {
   const [isLiked, setIsLiked] = useState(false);
   const [comment, setComment] = useState("");
+  const [image, setImage] = useState(0);
   const { data: session } = useSession();
   const router = useRouter();
   useEffect(() => {
@@ -79,21 +81,44 @@ export default function ItemPage({
         }}
       />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="relative w-full h-96">
-          <Image
-            src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[0].id}.${item.images[0].format}`}
-            alt={item.name}
-            fill={true}
-            className="object-cover rounded-md"
-          />
-          {item.order != null && (
-            <>
-              <div className="absolute border-l-[7rem] border-b-[7rem] border-transparent rounded-tl-md border-l-red-500 inline-block left-0 top-0"></div>
-              <div className="absolute text-xl text-white top-5 left-2 -rotate-45">
-                SOLD
-              </div>
-            </>
-          )}
+        <div className="flex gap-2">
+          <div className="w-20 h-full flex flex-col">
+            {item.images.map((img, i) => (
+              <button
+                key={img.id}
+                className={twMerge(
+                  "box-content relative w-20 h-20 mb-2 overflow-hidden",
+                  i === image
+                    ? "border-2 border-sky-500"
+                    : "border-2 border-gray-200"
+                )}
+                onClick={() => setImage(i)}
+              >
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${img.id}.${img.format}`}
+                  alt={item.name}
+                  fill={true}
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
+          <div className="grow relative h-96 bg-gray-200">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[image].id}.${item.images[image].format}`}
+              alt={item.name}
+              fill={true}
+              className="object-contain rounded-md"
+            />
+            {item.order != null && (
+              <>
+                <div className="absolute border-l-[7rem] border-b-[7rem] border-transparent rounded-tl-md border-l-red-500 inline-block left-0 top-0"></div>
+                <div className="absolute text-xl text-white top-5 left-2 -rotate-45">
+                  SOLD
+                </div>
+              </>
+            )}
+          </div>
         </div>
         <div className="text-left">
           <h3 className="text-2xl font-semibold mb-1">{item.name}</h3>
@@ -143,6 +168,13 @@ export default function ItemPage({
                     売り切れました
                   </button>
                 )
+              ) : item.userId === user.id ? (
+                <Link
+                  href={`/sell?edit=${item.id}`}
+                  className="block text-center w-full border border-sky-500 text-sky-500 rounded-md py-2 px-4 duration-150 hover:bg-sky-100"
+                >
+                  商品を編集
+                </Link>
               ) : (
                 <Link
                   href={`/purchase/${item.id}`}
