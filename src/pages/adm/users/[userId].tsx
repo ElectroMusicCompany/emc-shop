@@ -93,25 +93,7 @@ export default function AdminItems({ user }: { user: User }) {
               Stripe ID
             </label>
             <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-              id="stripe"
-              type="text"
-              placeholder="Stripe"
-              disabled
-              {...register("stripeId")}
-            />
-          </div>
-        </div>
-        <div className="flex flex-wrap -mx-3 mb-3">
-          <div className="w-full px-3 mb-6 md:mb-0">
-            <label
-              className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
-              htmlFor="stripe"
-            >
-              Stripe ID
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              className="appearance-none block w-full bg-white text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="stripe"
               type="text"
               placeholder="Stripe"
