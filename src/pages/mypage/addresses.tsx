@@ -8,6 +8,7 @@ import { IoMdClose, IoMdArrowBack } from "react-icons/io";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import AddressModal from "@/components/AddressModal";
+import toast from "react-hot-toast";
 
 type UserWithAddresses = Prisma.UserGetPayload<{
   include: { address: true };
@@ -59,6 +60,7 @@ export default function MyPageAddresses({ user }: { user: UserWithAddresses }) {
                 </div>
                 <button
                   onClick={async () => {
+                    const loading = toast.loading("削除中...");
                     await fetch("/api/user/deleteAddress", {
                       method: "DELETE",
                       headers: {
@@ -78,6 +80,9 @@ export default function MyPageAddresses({ user }: { user: UserWithAddresses }) {
                         setAddress(currentAddress[0].id);
                       }
                     }
+                    toast.success("削除しました", {
+                      id: loading,
+                    });
                     router.replace(router.asPath);
                   }}
                 >
@@ -98,6 +103,7 @@ export default function MyPageAddresses({ user }: { user: UserWithAddresses }) {
           open={addressModal}
           setOpen={setAddressModal}
           setAddress={async (data) => {
+            const loading = toast.loading("保存中...");
             const ad = await (
               await fetch("/api/user/addAddress", {
                 method: "POST",
@@ -115,6 +121,10 @@ export default function MyPageAddresses({ user }: { user: UserWithAddresses }) {
               if (currentAddress.length === 1) {
                 setAddress(currentAddress[0].id);
               }
+              toast.success("保存しました", {
+                id: loading,
+              });
+              router.replace(router.asPath);
             }
             router.replace(router.asPath);
           }}

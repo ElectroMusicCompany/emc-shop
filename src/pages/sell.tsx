@@ -59,6 +59,7 @@ export default function Sell({ user }: { user: User }) {
   });
 
   const onSubmit: SubmitHandler<Inputs> = async (data: Inputs) => {
+    const toastId = toast.loading("画像をアップロード中...");
     try {
       const mediaIds = [];
       for (const file of data.images) {
@@ -97,10 +98,14 @@ export default function Sell({ user }: { user: User }) {
       if (res.status !== "success") {
         throw new Error("Failed to create item");
       }
-      toast.success("商品を出品しました");
+      toast.success("商品を出品しました", {
+        id: toastId,
+      });
       router.push(`/item/${res.itemId}`);
     } catch (error) {
-      toast.error("画像のアップロードに失敗しました");
+      toast.error("画像のアップロードに失敗しました", {
+        id: toastId,
+      });
       console.error(error);
     }
   };

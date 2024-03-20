@@ -82,7 +82,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <a
+                            <Link
                               href="/api/auth/signout"
                               className={twMerge(
                                 "block px-4 py-2 rounded-md text-sm duration-100",
@@ -90,7 +90,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                               )}
                             >
                               ログアウト
-                            </a>
+                            </Link>
                           )}
                         </Menu.Item>
                       </div>

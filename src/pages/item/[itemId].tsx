@@ -15,6 +15,7 @@ import Reviews from "@/components/Reviews";
 import Image from "next/image";
 import nl2br from "react-nl2br";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   include: {
@@ -227,6 +228,7 @@ export default function ItemPage({
                 className="bg-sky-500 text-white rounded-md px-4 py-2 duration-150 hover:bg-sky-600 disabled:bg-gray-400 w-full"
                 disabled={comment.length === 0}
                 onClick={async () => {
+                  const toastId = toast.loading("コメントしています");
                   const res = await (
                     await fetch(`/api/item/comment`, {
                       method: "POST",
@@ -240,6 +242,9 @@ export default function ItemPage({
                     })
                   ).json();
                   if (res.status === "success") {
+                    toast.success("コメントしました", {
+                      id: toastId,
+                    });
                     setComment("");
                   }
                   router.replace(router.asPath);
