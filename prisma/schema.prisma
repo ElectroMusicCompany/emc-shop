@@ -29,6 +29,7 @@ model User {
   comments    Comment[]
   chats       Chat[]
   reviews     Review[]
+  reports     Report[]
 }
 
 model Address {
@@ -73,6 +74,7 @@ model Item {
   favorite    Favorite[]
   comments    Comment[]
   reviews     Review[]
+  reports     Report[]
 }
 
 model Image {
@@ -99,6 +101,7 @@ model Order {
   address   Address  @relation(fields: [addressId], references: [id])
   addressId String
   chats     Chat[]
+  reports   Report[]
 }
 
 model Review {
@@ -144,4 +147,17 @@ model Chat {
   user      User     @relation(fields: [userId], references: [id])
   orderId   String
   order     Order    @relation(fields: [orderId], references: [id])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  itemId    String?
+  item      Item?    @relation(fields: [itemId], references: [id])
+  orderId   String?
+  order     Order?   @relation(fields: [orderId], references: [id])
 }
