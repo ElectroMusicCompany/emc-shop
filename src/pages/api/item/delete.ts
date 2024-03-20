@@ -10,6 +10,14 @@ export default async function handler(
   const session = await getServerSession(req, res, authOptions);
   if (session) {
     if (req.body.id) {
+      const before = await db.item.findUnique({
+        where: {
+          id: req.body.id,
+        },
+      });
+      if (before?.userId !== session.user.id) {
+        return res.status(401).json({ status: "error", error: "Unauthorized" });
+      }
       const item = await db.item.delete({
         where: {
           id: req.body.id,
