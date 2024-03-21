@@ -309,6 +309,9 @@ export default function Sell({
             </div>
             <div className="flex flex-col mb-4">
               <label htmlFor="description">商品説明</label>
+              <span className="text-xs mb-2">
+                Markdownの一部記法が使えます。
+              </span>
               <textarea
                 id="description"
                 rows={6}

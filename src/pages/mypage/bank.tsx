@@ -52,6 +52,7 @@ export default function MyPageAddresses({
           銀行口座設定 / 本人確認
         </h3>
         <p>Stripeで販売する場合、この設定が必要です。</p>
+        <p className="text-red-500">※18歳未満は利用できません</p>
         <button
           className="bg-sky-500 text-white rounded-md py-2 mt-4 w-full duration-150 hover:bg-sky-600"
           onClick={() => getLink()}
