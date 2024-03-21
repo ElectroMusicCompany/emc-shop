@@ -8,6 +8,7 @@ import { IoMdArrowBack } from "react-icons/io";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import NextHeadSeo from "next-head-seo";
+import Link from "next/link";
 
 export default function MyPageAddresses({ user }: { user: User }) {
   const router = useRouter();
@@ -38,9 +39,9 @@ export default function MyPageAddresses({ user }: { user: User }) {
       />
       <div className="max-w-3xl mx-auto text-left">
         <h3 className="text-xl font-bold py-2 flex items-center gap-4">
-          <button onClick={() => router.back()}>
+          <Link href="/mypage">
             <IoMdArrowBack size={24} />
-          </button>
+          </Link>
           銀行口座設定 / 本人確認
         </h3>
         <p>Stripeで販売する場合、この設定が必要です。</p>
