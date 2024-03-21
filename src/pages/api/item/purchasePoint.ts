@@ -34,6 +34,16 @@ const purchase = async (
       points: user.points - item.price,
     },
   });
+  await db.user.update({
+    where: {
+      id: item.user.id,
+    },
+    data: {
+      points: {
+        increment: item.price,
+      },
+    },
+  });
   const order = await db.order.create({
     data: {
       userId: user.id,

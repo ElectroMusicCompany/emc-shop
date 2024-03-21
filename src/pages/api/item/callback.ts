@@ -95,6 +95,16 @@ export default async function handler(
           points: user.points - item.price < 0 ? 0 : user.points - item.price,
         },
       });
+      await db.user.update({
+        where: {
+          id: item.user.id,
+        },
+        data: {
+          points: {
+            increment: item.price - user.points,
+          }
+        },
+      });
     }
     const order = await db.order.create({
       data: {

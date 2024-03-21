@@ -33,7 +33,6 @@ export default async function handler(
     const stripeSession = await stripe.checkout.sessions.retrieve(
       sessionId as string
     );
-    console.log(stripeSession);
     if (
       !stripeSession ||
       stripeSession.payment_status !== "paid" ||
