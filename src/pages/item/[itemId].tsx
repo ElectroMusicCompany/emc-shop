@@ -18,6 +18,7 @@ import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import NextHeadSeo from "next-head-seo";
 import { twMerge } from "tailwind-merge";
+import ReactMarkdown from "react-markdown";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   include: {
@@ -186,7 +187,21 @@ export default function ItemPage({
             </div>
           )}
           <h4 className="text-xl font-semibold mt-8 mb-2">商品の説明</h4>
-          <p>{item.description}</p>
+          <div className="prose max-w-none">
+            <ReactMarkdown
+              allowedElements={[
+                "p",
+                "strong",
+                "underline",
+                "stroke",
+                "ul",
+                "ol",
+                "li",
+              ]}
+            >
+              {item.description}
+            </ReactMarkdown>
+          </div>
           <p className="text-sm my-3">
             {formatDistanceToNow(new Date(item.createdAt), { locale: ja })}前
           </p>
