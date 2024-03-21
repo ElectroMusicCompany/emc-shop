@@ -44,7 +44,7 @@ export default function UserPage({ user }: { user: UserWithItems }) {
           出品した商品
         </h3>
         {user.items.length === 0 && <p>出品した商品はありません。</p>}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8">
+        <div className="items-start grid grid-cols-2 md:grid-cols-4 gap-4 py-8">
           {user.items.map((item, i) => (
             <ItemCard
               item={item}

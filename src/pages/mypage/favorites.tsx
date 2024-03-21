@@ -48,7 +48,7 @@ export default function UserPage({ user }: { user: UserWithItems }) {
           お気に入り一覧
         </h3>
         {user.favorite.length === 0 && <p>お気に入りした商品はありません。</p>}
-        <div className="grid grid-cols-4 gap-4 py-8">
+        <div className="items-start grid grid-cols-4 gap-4 py-8">
           {user.favorite.map((fav, i) => (
             <ItemCard
               item={fav.item}

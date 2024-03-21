@@ -48,7 +48,7 @@ export default function UserPage({ user }: { user: UserWithOrders }) {
           購入した商品
         </h3>
         {user.orders.length === 0 && <p>購入した商品はありません。</p>}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8">
+        <div className="items-start grid grid-cols-2 md:grid-cols-4 gap-4 py-8">
           {user.orders.map((order, i) => (
             <ItemCard
               item={order.item}

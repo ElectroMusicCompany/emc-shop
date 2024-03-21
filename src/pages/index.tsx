@@ -28,7 +28,7 @@ export default function Home({ items }: { items: ItemWithImages[] }) {
         }}
       />
       <h3 className="text-xl font-bold text-left py-4">最新の出品</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 items-start md:grid-cols-4 lg:grid-cols-6 gap-4">
         {items.length > 0 ? (
           items.map((item, i) => (
             <ItemCard
