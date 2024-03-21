@@ -19,6 +19,13 @@ export default async function handler(
         where: {
           id: req.body.orderId as string,
         },
+        include: {
+          item: {
+            include: {
+              images: true,
+            },
+          }
+        }
       });
       if (!order) {
         return res
@@ -51,6 +58,26 @@ export default async function handler(
             id: req.body.orderId as string,
           },
         });
+        await fetch(`${process.env.DISCORD_BOT_WEB_URL}/review`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.DISCORD_BOT_WEB_SECRET}`,
+          },
+          body: JSON.stringify({
+            userId: order.item.userId,
+            item: {
+              id: order.itemId,
+              name: order.item.name,
+              price: order.item.price,
+              image: `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${order.item.images[0].id}.${order.item.images[0].format}`
+            },
+            order: {
+              id: order.id,
+              createdAt: order.createdAt,
+            },
+          }),
+        })
       }
       res.status(200).json({ status: "success", review });
     } else {

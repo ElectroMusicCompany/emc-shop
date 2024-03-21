@@ -39,7 +39,7 @@ export default function AdminLayout({
       <aside className="whitespace-nowrap flex flex-col justify-center bg-white h-screen">
         <div className="mx-auto flex flex-col items-start justify-between pl-4 pr-8 py-4">
           <h2 className="text-lg font-medium mb-4">
-            <Link href="/">EMC Shop Admin</Link>
+            <Link href="/adm/">EMC Shop Admin</Link>
           </h2>
         </div>
         <div className="grow flex flex-col gap-1 w-full px-2 text-sm">

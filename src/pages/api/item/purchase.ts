@@ -23,32 +23,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!item) {
       return res.status(404).json({ status: "error", error: "Item not found" });
     }
-    const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price_data: {
-            currency: "jpy",
-            product_data: {
-              name: item.name,
-              images: [`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[0].id}.${item.images[0].format}`],
+    if (!item.stripe) {
+      const session = await stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price_data: {
+              currency: "jpy",
+              product_data: {
+                name: item.name,
+                images: [`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[0].id}.${item.images[0].format}`],
+              },
+              unit_amount: item.price,
             },
-            unit_amount: item.price,
+            quantity: 1,
           },
-          quantity: 1,
+        ],
+        payment_intent_data: {
+          transfer_data: {
+            destination: item.user.stripeId || "",
+          },
         },
-      ],
-      payment_intent_data: {
-        transfer_data: {
-          destination: item.user.stripeId || "",
-        },
-      },
-      locale: "ja",
-      mode: "payment",
-      success_url: `https://emc.wmsci.com/api/item/callback?itemId=${itemId}&buyerId=${buyerId}&addressId=${addressId}&sessionId={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://emc.wmsci.com/purchase/${itemId}?canceled=true`,
-    });
-
-    return res.status(303).json({ status: "success", redirect: session.url || "" });
+        locale: "ja",
+        mode: "payment",
+        success_url: `https://emc.wmsci.com/api/item/callback?itemId=${itemId}&buyerId=${buyerId}&addressId=${addressId}&sessionId={CHECKOUT_SESSION_ID}`,
+        cancel_url: `https://emc.wmsci.com/purchase/${itemId}?canceled=true`,
+      });
+      return res.status(303).json({ status: "success", redirect: session.url || "" });
+    } else {
+      return res.status(303).json({ status: "success", redirect: `/api/item/callback?itemId=${itemId}&buyerId=${buyerId}&addressId=${addressId}` });
+    }
   } else {
     return res.status(401).json({ status: "error", error: "Unauthorized" });
   }

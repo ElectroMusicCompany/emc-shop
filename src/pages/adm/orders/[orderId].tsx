@@ -123,6 +123,42 @@ export default function AdminItems({ order }: { order: Order }) {
           <div className="w-full px-3 mb-6 md:mb-0">
             <label
               className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
+              htmlFor="shipped"
+            >
+              購入者評価済み
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="tracking"
+              type="text"
+              placeholder="shipped"
+              value={order.shipped ? "はい" : "いいえ"}
+              disabled
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap -mx-3 mb-3">
+          <div className="w-full px-3 mb-6 md:mb-0">
+            <label
+              className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
+              htmlFor="complete"
+            >
+              出品者評価済み
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="complete"
+              type="text"
+              placeholder="complete"
+              value={order.complete ? "はい" : "いいえ"}
+              disabled
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap -mx-3 mb-3">
+          <div className="w-full px-3 mb-6 md:mb-0">
+            <label
+              className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
               htmlFor="createdAt"
             >
               作成日

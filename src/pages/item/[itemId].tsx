@@ -217,6 +217,10 @@ export default function ItemPage({
                 <td className="font-semibold py-2">配送の方法</td>
                 <td>{item.shipping}</td>
               </tr>
+              <tr>
+                <td className="font-semibold py-2">支払い方法</td>
+                <td>{item.stripe ? "その他" : "Stripe"}</td>
+              </tr>
             </tbody>
           </table>
           <hr />

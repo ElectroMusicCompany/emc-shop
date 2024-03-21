@@ -6,7 +6,11 @@ import { Prisma } from "@prisma/client";
 import Layout from "@/components/Layout";
 import Image from "next/image";
 import Link from "next/link";
-import { MdOutlineCheck, MdOutlineKeyboardArrowRight } from "react-icons/md";
+import {
+  MdOutlineAttachMoney,
+  MdOutlineCheck,
+  MdOutlineKeyboardArrowRight,
+} from "react-icons/md";
 import { format, formatDistanceToNow } from "date-fns";
 import Reviews from "@/components/Reviews";
 import { useState } from "react";
@@ -183,8 +187,14 @@ export default function Transaction({
                 </tr>
                 <tr>
                   <td className="font-semibold py-2">購入日時</td>
-                  <td>{format(order.createdAt, "yyyy年M月d日 H:m")}</td>
+                  <td>{format(order.createdAt, "yyyy年MM月dd日 HH:mm")}</td>
                 </tr>
+                {order.expiresAt !== null && (
+                  <tr>
+                    <td className="font-semibold py-2">支払期日</td>
+                    <td>{format(order.expiresAt, "yyyy年MM月dd日 HH:mm")}</td>
+                  </tr>
+                )}
                 <tr>
                   <td className="font-semibold py-2">商品ID</td>
                   <td>{order.item.id}</td>
@@ -206,39 +216,91 @@ export default function Transaction({
               </div>
             </div>
           )}
+          {order.expiresAt && order.userId === userId && (
+            <div className="bg-red-100 border border-red-400 rounded-md mb-4">
+              <div className="max-w-3xl mx-auto p-4">
+                <p className="text-sm flex items-center text-red-500">
+                  <MdOutlineAttachMoney size={24} className="mr-2" />
+                  支払期日までに、出品者に連絡をして支払いを完了してください
+                </p>
+              </div>
+            </div>
+          )}
+          {order.expiresAt && order.userId === userId && (
+            <div className="bg-gray-100 border rounded-md mb-4">
+              <div className="flex justify-between items-center max-w-3xl mx-auto p-4">
+                <p className="text-sm flex items-center">
+                  <MdOutlineAttachMoney size={24} className="mr-2" />
+                  支払いを確認しましたか？
+                </p>
+                <button
+                  className="bg-sky-500 text-white rounded-md px-4 py-2 duration-150 hover:bg-sky-600"
+                  onClick={async () => {
+                    const toastId = toast.loading("更新中...");
+                    const res = await (
+                      await fetch(`/api/order/pay`, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          orderId: order.id,
+                        }),
+                      })
+                    ).json();
+                    if (res.status === "success") {
+                      toast.success("更新しました", {
+                        id: toastId,
+                      });
+                      router.replace(router.asPath);
+                    } else {
+                      toast.error("エラーが発生しました", {
+                        id: toastId,
+                      });
+                    }
+                  }}
+                >
+                  確認
+                </button>
+              </div>
+            </div>
+          )}
           <div>
-            {order.userId === userId && !order.shipped && !order.complete && (
-              <Rating
-                reviewer="user"
-                onSubmit={async (rating, text) => {
-                  const toastId = toast.loading("評価中...");
-                  const res = await (
-                    await fetch(`/api/order/review`, {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        orderId: order.id,
-                        rating: rating === 1,
-                        text: text,
-                        itemId: order.item.id,
-                      }),
-                    })
-                  ).json();
-                  if (res.status === "success") {
-                    toast.success("評価しました", {
-                      id: toastId,
-                    });
-                    router.replace(router.asPath);
-                  } else {
-                    toast.error("エラーが発生しました", {
-                      id: toastId,
-                    });
-                  }
-                }}
-              />
-            )}
+            {order.userId === userId &&
+              order.expiresAt === null &&
+              !order.shipped &&
+              !order.complete && (
+                <Rating
+                  reviewer="user"
+                  onSubmit={async (rating, text) => {
+                    const toastId = toast.loading("評価中...");
+                    const res = await (
+                      await fetch(`/api/order/review`, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          orderId: order.id,
+                          rating: rating === 1,
+                          text: text,
+                          itemId: order.item.id,
+                        }),
+                      })
+                    ).json();
+                    if (res.status === "success") {
+                      toast.success("評価しました", {
+                        id: toastId,
+                      });
+                      router.replace(router.asPath);
+                    } else {
+                      toast.error("エラーが発生しました", {
+                        id: toastId,
+                      });
+                    }
+                  }}
+                />
+              )}
             {order.userId !== userId && order.shipped && !order.complete && (
               <Rating
                 reviewer="seller"
