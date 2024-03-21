@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+import pkg from './package.json' assert { type: "json" };
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -16,7 +17,10 @@ const nextConfig = {
         pathname: "/**"
       }
     ]
-  }
+  },
+  publicRuntimeConfig: {
+    version: pkg.version,
+  },
 };
 
 export default nextConfig;

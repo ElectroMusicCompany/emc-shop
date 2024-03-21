@@ -122,6 +122,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link href="/disclosure">特定商取引法に基づく表記</Link>
             <Link href="/tos">利用規約</Link>
             <Link href="/privacy">プライバシーポリシー</Link>
+            <Link href="/info">このソフトウェアについて</Link>
           </div>
         </div>
       </footer>
