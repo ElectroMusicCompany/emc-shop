@@ -4,10 +4,22 @@ import { twMerge } from "tailwind-merge";
 import Image from "next/image";
 import { format } from "date-fns";
 import Link from "next/link";
+import { getAvatar } from "@/utils/images";
 
 type Review = Prisma.ReviewGetPayload<{
-  include: {
-    user: true;
+  select: {
+    id: true;
+    text: true;
+    rating: true;
+    user: {
+      select: {
+        id: true;
+        name: true;
+        avatar: true;
+      };
+    };
+    createdAt: true;
+    buyer: true;
   };
 }>;
 
@@ -45,14 +57,17 @@ export default function ReviewList({ reviews }: { reviews: Review[] }) {
               className="flex w-full gap-4 border-b py-4 items-start"
             >
               <Image
-                src={`https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatar}.png`}
+                src={getAvatar(review.user.id, review.user.avatar)}
                 alt={review.user.name || ""}
                 className="rounded-full"
                 width={40}
                 height={40}
               />
               <div className="w-full">
-                <Link href={`/user/profile/${review.userId}`} className="group">
+                <Link
+                  href={`/user/profile/${review.user.id}`}
+                  className="group"
+                >
                   <p className="font-bold">
                     <span className="group-hover:underline">
                       {review.user.name}{" "}
@@ -78,7 +93,7 @@ export default function ReviewList({ reviews }: { reviews: Review[] }) {
               className="flex gap-4 border-b py-4 items-start"
             >
               <Image
-                src={`https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatar}.png`}
+                src={getAvatar(review.user.id, review.user.avatar)}
                 alt={review.user.name || ""}
                 className="rounded-full"
                 width={40}

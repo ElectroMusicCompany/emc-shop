@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import NextHeadSeo from "next-head-seo";
 
 type UserWithAddresses = Prisma.UserGetPayload<{
-  include: { address: true };
+  select: { id: true; address: true };
 }>;
 
 export default function MyPageAddresses({ user }: { user: UserWithAddresses }) {
@@ -159,7 +159,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   const user = await db.user.findUnique({
     where: { id: session.user.id },
-    include: { address: true },
+    select: { id: true, address: true },
   });
   return {
     props: { user: JSON.parse(JSON.stringify(user)) },

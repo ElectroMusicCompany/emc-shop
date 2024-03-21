@@ -10,7 +10,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import NextHeadSeo from "next-head-seo";
 
-export default function MyPageAddresses({ user }: { user: User }) {
+export default function MyPageAddresses({
+  user,
+}: {
+  user: { description: string };
+}) {
   const router = useRouter();
   const [desc, setDesc] = useState(user.description);
   const onSubmit = async () => {
@@ -94,6 +98,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   const user = await db.user.findUnique({
     where: { id: session.user.id },
+    select: {
+      description: true,
+    },
   });
   return {
     props: { user: JSON.parse(JSON.stringify(user)) },

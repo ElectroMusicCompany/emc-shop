@@ -6,17 +6,41 @@ import Image from "next/image";
 import Reviews from "@/components/Reviews";
 import ReviewList from "@/components/ReviewList";
 import NextHeadSeo from "next-head-seo";
+import { getAvatar } from "@/utils/images";
 
 type UserWithItems = Prisma.UserGetPayload<{
-  include: {
-    items: true;
-    reviews: true;
+  select: {
+    name: true;
+    id: true;
+    avatar: true;
+    items: {
+      select: {
+        id: true;
+      };
+    };
+    reviews: {
+      select: {
+        id: true;
+        rating: true;
+      };
+    };
   };
 }>;
 
 type ReviewWithUser = Prisma.ReviewGetPayload<{
-  include: {
-    user: true;
+  select: {
+    id: true;
+    text: true;
+    rating: true;
+    user: {
+      select: {
+        id: true;
+        name: true;
+        avatar: true;
+      };
+    };
+    createdAt: true;
+    buyer: true;
   };
 }>;
 
@@ -44,7 +68,7 @@ export default function ReviewPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-1 p-4 border">
           <Image
-            src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
+            src={getAvatar(user.id, user.avatar)}
             alt={user.name || ""}
             width={100}
             height={100}
@@ -73,8 +97,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     where: {
       id: ctx.query.userId?.toString(),
     },
-    include: {
-      items: true,
+    select: {
+      id: true,
+      name: true,
+      avatar: true,
+      items: {
+        select: {
+          id: true,
+        },
+      },
       reviews: true,
     },
   });
@@ -98,8 +129,19 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     orderBy: {
       createdAt: "desc",
     },
-    include: {
-      user: true,
+    select: {
+      id: true,
+      text: true,
+      rating: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+      createdAt: true,
+      buyer: true,
     },
   });
   return {

@@ -1,9 +1,13 @@
+import { getItemImage } from "@/utils/images";
 import { Prisma } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
-  include: {
+  select: {
+    id: true;
+    name: true;
+    price: true;
     images: true;
   };
 }>;
@@ -24,7 +28,7 @@ export default function ItemCard({
     >
       <div className="relative w-full aspect-square">
         <Image
-          src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[0].id}.${item.images[0].format}`}
+          src={getItemImage(item.images[0].id, item.images[0].format)}
           alt={item.name}
           fill={true}
           className="object-cover rounded-md"

@@ -10,7 +10,14 @@ import toast from "react-hot-toast";
 import NextHeadSeo from "next-head-seo";
 import Link from "next/link";
 
-export default function MyPageAddresses({ user }: { user: User }) {
+export default function MyPageAddresses({
+  user,
+}: {
+  user: {
+    id: string;
+    stripeId: string | null;
+  };
+}) {
   const router = useRouter();
   const getLink = async () => {
     const toastId = toast.loading("リダイレクト中...");
@@ -68,6 +75,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   const user = await db.user.findUnique({
     where: { id: session.user.id },
+    select: {
+      id: true,
+      stripeId: true,
+    },
   });
   return {
     props: { user: JSON.parse(JSON.stringify(user)) },

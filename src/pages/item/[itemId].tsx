@@ -19,29 +19,75 @@ import toast from "react-hot-toast";
 import NextHeadSeo from "next-head-seo";
 import { twMerge } from "tailwind-merge";
 import ReactMarkdown from "react-markdown";
+import { getAvatar, getItemImage } from "@/utils/images";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
-  include: {
+  select: {
+    id: true;
+    name: true;
+    price: true;
+    description: true;
+    state: true;
+    shipping: true;
+    stripe: true;
+    createdAt: true;
     images: true;
-    order: true;
+    order: {
+      select: {
+        id: true;
+        userId: true;
+      };
+    };
     user: {
-      include: {
-        reviews: true;
+      select: {
+        id: true;
+        name: true;
+        avatar: true;
+        reviews: {
+          select: {
+            id: true;
+            rating: true;
+          };
+        };
       };
     };
     comments: {
-      include: {
-        user: true;
+      select: {
+        id: true;
+        text: true;
+        createdAt: true;
+        user: {
+          select: {
+            id: true;
+            name: true;
+            avatar: true;
+          };
+        };
       };
     };
-    favorite: true;
+    favorite: {
+      select: {
+        id: true;
+      };
+    };
   };
 }>;
 
 type UserWithFavorite = Prisma.UserGetPayload<{
-  include: {
-    favorite: true;
-    reviews: true;
+  select: {
+    id: true;
+    favorite: {
+      select: {
+        id: true;
+        itemId: true;
+      };
+    };
+    reviews: {
+      select: {
+        id: true;
+        rating: true;
+      };
+    };
   };
 }>;
 
@@ -96,7 +142,7 @@ export default function ItemPage({
                 onClick={() => setImage(i)}
               >
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${img.id}.${img.format}`}
+                  src={getItemImage(img.id, img.format)}
                   alt={item.name}
                   fill={true}
                   className="object-cover"
@@ -106,7 +152,10 @@ export default function ItemPage({
           </div>
           <div className="grow relative h-96 bg-gray-200">
             <Image
-              src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[image].id}.${item.images[image].format}`}
+              src={getItemImage(
+                item.images[image].id,
+                item.images[image].format
+              )}
               alt={item.name}
               fill={true}
               className="object-contain rounded-md"
@@ -169,7 +218,7 @@ export default function ItemPage({
                     売り切れました
                   </button>
                 )
-              ) : item.userId === user.id ? (
+              ) : item.user.id === user.id ? (
                 <Link
                   href={`/sell?edit=${item.id}`}
                   className="block text-center w-full border border-sky-500 text-sky-500 rounded-md py-2 px-4 duration-150 hover:bg-sky-100"
@@ -227,13 +276,13 @@ export default function ItemPage({
           <h4 className="text-xl font-semibold mt-8 mb-2">出品者</h4>
           <hr />
           <Link
-            href={`/user/profile/${item.userId}`}
+            href={`/user/profile/${item.user.id}`}
             className="flex justify-between items-center py-4 duration-150 hover:bg-gray-100"
           >
             <div className="flex items-center">
               <div className="w-11 h-11 relative">
                 <Image
-                  src={`https://cdn.discordapp.com/avatars/${item.userId}/${item.user.avatar}.png`}
+                  src={getAvatar(item.user.id, item.user.avatar)}
                   alt={item.user.name || ""}
                   fill={true}
                   className="rounded-full"
@@ -256,7 +305,7 @@ export default function ItemPage({
               <div key={comment.id} className="flex items-start gap-2 py-4">
                 <div className="w-11 h-11 relative mt-2">
                   <Image
-                    src={`https://cdn.discordapp.com/avatars/${comment.userId}/${comment.user.avatar}.png`}
+                    src={getAvatar(comment.user.id, comment.user.avatar)}
                     alt={comment.user.name || ""}
                     fill={true}
                     className="rounded-full"
@@ -330,20 +379,54 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     where: {
       id: ctx.query.itemId as string,
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      description: true,
+      state: true,
+      shipping: true,
+      stripe: true,
+      createdAt: true,
       images: true,
+      order: {
+        select: {
+          id: true,
+          userId: true,
+        },
+      },
       user: {
-        include: {
-          reviews: true,
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+          reviews: {
+            select: {
+              id: true,
+              rating: true,
+            },
+          },
         },
       },
-      order: true,
       comments: {
-        include: {
-          user: true,
+        select: {
+          id: true,
+          text: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
         },
       },
-      favorite: true,
+      favorite: {
+        select: {
+          id: true,
+        },
+      },
     },
   });
   if (session) {
@@ -351,9 +434,19 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       where: {
         id: session.user.id,
       },
-      include: {
-        favorite: true,
-        reviews: true,
+      select: {
+        id: true,
+        favorite: {
+          select: {
+            itemId: true,
+          },
+        },
+        reviews: {
+          select: {
+            id: true,
+            rating: true,
+          },
+        },
       },
     });
 

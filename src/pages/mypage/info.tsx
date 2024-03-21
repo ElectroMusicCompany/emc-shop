@@ -8,7 +8,15 @@ import { IoMdArrowBack } from "react-icons/io";
 import { useRouter } from "next/router";
 import NextHeadSeo from "next-head-seo";
 
-export default function MyPageAddresses({ user }: { user: User }) {
+export default function MyPageAddresses({
+  user,
+}: {
+  user: {
+    id: string;
+    name: string;
+    stripeId: string | null;
+  };
+}) {
   const router = useRouter();
   return (
     <Layout>
@@ -60,6 +68,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   const user = await db.user.findUnique({
     where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      stripeId: true,
+    },
   });
   return {
     props: { user: JSON.parse(JSON.stringify(user)) },

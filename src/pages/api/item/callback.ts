@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import Stripe from "stripe";
 import { add } from "date-fns";
+import { getItemImage } from "@/utils/images";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
@@ -28,10 +29,22 @@ export default async function handler(
         where: {
           id: itemId?.toString(),
         },
-        include: {
+        select: {
+          id: true,
+          price: true,
+          name: true,
+          stripe: true,
           images: true,
-          order: true,
-          user: true,
+          order: {
+            select: {
+              id: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+            },
+          }
         },
       });
       if (!item) {
@@ -61,13 +74,13 @@ export default async function handler(
           "Authorization": `Bearer ${process.env.DISCORD_BOT_WEB_SECRET}`,
         },
         body: JSON.stringify({
-          sellerId: item.userId,
+          sellerId: item.user.id,
           buyerId: user.id,
           item: {
             id: item.id,
             name: item.name,
             price: item.price,
-            image: `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[0].id}.${item.images[0].format}`
+            image: getItemImage(item.images[0].id, item.images[0].format)
           },
           order: {
             id: order.id,

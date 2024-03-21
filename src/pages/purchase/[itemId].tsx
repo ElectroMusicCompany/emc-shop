@@ -10,16 +10,26 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import AddressModal from "@/components/AddressModal";
 import NextHeadSeo from "next-head-seo";
+import { getItemImage } from "@/utils/images";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
-  include: {
+  select: {
+    id: true;
+    price: true;
+    name: true;
+    stripe: true;
     images: true;
-    user: true;
+    user: {
+      select: {
+        id: true;
+      };
+    };
   };
 }>;
 
 type UserWithAddress = Prisma.UserGetPayload<{
-  include: {
+  select: {
+    id: true;
     address: true;
   };
 }>;
@@ -64,7 +74,7 @@ export default function Purchase({
             <div className="flex items-center gap-4">
               <div className="relative h-20 w-20 my-4">
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[0].id}.${item.images[0].format}`}
+                  src={getItemImage(item.images[0].id, item.images[0].format)}
                   alt={item.name}
                   fill={true}
                   className="aspect-square object-cover rounded-md"
@@ -228,20 +238,26 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       where: {
         id: itemId,
       },
-      include: {
+      select: {
+        id: true,
         images: true,
-        user: true,
+        user: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
     const user = await db.user.findUnique({
       where: {
         id: session.user.id,
       },
-      include: {
+      select: {
+        id: true,
         address: true,
       },
     });
-    if (user?.id === item?.userId) {
+    if (user?.id === item?.user.id) {
       return {
         redirect: {
           destination: `/item/${item?.id}`,

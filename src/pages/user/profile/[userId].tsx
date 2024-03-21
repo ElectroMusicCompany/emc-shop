@@ -10,16 +10,33 @@ import ItemCard from "@/components/ItemCard";
 import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import NextHeadSeo from "next-head-seo";
+import { getAvatar } from "@/utils/images";
 
 type UserWithItems = Prisma.UserGetPayload<{
-  include: {
+  select: {
+    id: true;
+    name: true;
+    avatar: true;
+    description: true;
     items: {
-      include: {
+      select: {
+        id: true;
+        name: true;
+        price: true;
         images: true;
-        order: true;
+        order: {
+          select: {
+            id: true;
+          };
+        };
       };
     };
-    reviews: true;
+    reviews: {
+      select: {
+        id: true;
+        rating: true;
+      };
+    };
   };
 }>;
 
@@ -47,7 +64,7 @@ export default function UserPage({
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between max-w-3xl gap-6">
           <Image
-            src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
+            src={getAvatar(user.id, user.avatar)}
             alt={user.name || ""}
             width={100}
             height={100}
@@ -111,14 +128,30 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     where: {
       id: ctx.query.userId?.toString(),
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      avatar: true,
+      description: true,
       items: {
-        include: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
           images: true,
-          order: true,
+          order: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
-      reviews: true,
+      reviews: {
+        select: {
+          id: true,
+          rating: true,
+        },
+      },
     },
   });
   if (session) {

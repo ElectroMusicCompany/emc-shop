@@ -29,10 +29,21 @@ type Inputs = {
 type Item = Prisma.ItemGetPayload<{
   include: {
     images: true;
+    order: {
+      select: {
+        id: true;
+      };
+    };
   };
 }>;
 
-export default function Sell({ user, item }: { user: User; item?: Item }) {
+export default function Sell({
+  user,
+  item,
+}: {
+  user: { id: string; stripeId: string };
+  item?: Item;
+}) {
   const router = useRouter();
   const {
     register,
@@ -494,6 +505,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   const user = await db.user.findUnique({
     where: { id: session.user.id },
+    select: {
+      id: true,
+      stripeId: true,
+    },
   });
   if (itemId) {
     const item = await db.item.findUnique({
@@ -502,7 +517,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
       include: {
         images: true,
-        order: true,
+        order: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
     if (!item || item.order) {

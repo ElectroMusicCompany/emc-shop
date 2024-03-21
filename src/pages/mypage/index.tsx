@@ -1,14 +1,12 @@
 import Layout from "@/components/Layout";
-import { db } from "@/lib/prisma";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
-import { User } from "@prisma/client";
 import Link from "next/link";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import NextHeadSeo from "next-head-seo";
 
-export default function MyPage({ user }: { user: User }) {
+export default function MyPage() {
   return (
     <Layout>
       <NextHeadSeo
@@ -98,12 +96,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   }
-  const user = await db.user.findUnique({
-    where: { id: session.user.id },
-  });
   return {
-    props: {
-      user: JSON.parse(JSON.stringify(user)),
-    },
+    props: {},
   };
 };

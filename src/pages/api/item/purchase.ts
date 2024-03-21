@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { db } from "@/lib/prisma";
+import { getItemImage } from "@/utils/images";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
@@ -15,9 +16,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: {
         id: itemId?.toString(),
       },
-      include: {
+      select: {
+        id: true,
+        price: true,
+        name: true,
+        stripe: true,
         images: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            stripeId: true,
+          },
+        },
       },
     });
     if (!item) {
@@ -31,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               currency: "jpy",
               product_data: {
                 name: item.name,
-                images: [`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${item.images[0].id}.${item.images[0].format}`],
+                images: [getItemImage(item.images[0].id, item.images[0].format)],
               },
               unit_amount: item.price,
             },

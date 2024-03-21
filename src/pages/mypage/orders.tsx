@@ -10,13 +10,15 @@ import { useRouter } from "next/router";
 import NextHeadSeo from "next-head-seo";
 
 type UserWithOrders = Prisma.UserGetPayload<{
-  include: {
+  select: {
     orders: {
-      include: {
+      select: {
         item: {
-          include: {
+          select: {
+            id: true;
+            name: true;
+            price: true;
             images: true;
-            user: true;
           };
         };
       };
@@ -70,13 +72,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       where: {
         id: session.user.id,
       },
-      include: {
+      select: {
         orders: {
-          include: {
+          select: {
             item: {
-              include: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
                 images: true,
-                user: true,
               },
             },
           },

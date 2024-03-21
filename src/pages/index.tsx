@@ -6,9 +6,16 @@ import NextHeadSeo from "next-head-seo";
 import { Prisma } from "@prisma/client";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
-  include: {
+  select: {
+    id: true;
+    name: true;
+    price: true;
     images: true;
-    order: true;
+    order: {
+      select: {
+        id: true;
+      };
+    };
   };
 }>;
 
@@ -51,9 +58,16 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     orderBy: {
       createdAt: "desc",
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      price: true,
       images: true,
-      order: true,
+      order: {
+        select: {
+          id: true,
+        },
+      },
     },
     take: 24,
   });

@@ -10,8 +10,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: {
         id: session.user.id,
       },
-      include: {
-        favorite: true,
+      select: {
+        id: true,
+        favorite: {
+          select: {
+            itemId: true,
+          },
+        }
       },
     });
     const item = await db.item.findUnique({

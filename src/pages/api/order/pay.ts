@@ -18,7 +18,7 @@ export default async function handler(
       where: {
         id: req.body.orderId as string,
       },
-      include: {
+      select: {
         item: true
       }
     });

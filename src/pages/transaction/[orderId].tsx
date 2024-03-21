@@ -20,23 +20,60 @@ import nl2br from "react-nl2br";
 import toast from "react-hot-toast";
 import Rating from "@/components/Rating";
 import NextHeadSeo from "next-head-seo";
+import { getAvatar, getItemImage } from "@/utils/images";
 
 type Order = Prisma.OrderGetPayload<{
-  include: {
+  select: {
+    id: true;
+    expiresAt: true;
+    shipped: true;
+    complete: true;
+    tracking: true;
+    createdAt: true;
     item: {
-      include: {
-        images: true;
-        user: true;
+      select: {
+        id: true;
+        name: true;
+        price: true;
+        shipping: true;
+        images: {
+          select: {
+            id: true;
+            format: true;
+          };
+        };
+        user: {
+          select: {
+            id: true;
+            name: true;
+            avatar: true;
+          };
+        };
       };
     };
     chats: {
-      include: {
-        user: true;
+      select: {
+        id: true;
+        text: true;
+        createdAt: true;
+        user: {
+          select: {
+            id: true;
+            name: true;
+            avatar: true;
+          };
+        };
       };
     };
     user: {
-      include: {
-        reviews: true;
+      select: {
+        id: true;
+        reviews: {
+          select: {
+            id: true;
+            rating: true;
+          };
+        };
       };
     };
     address: true;
@@ -52,8 +89,6 @@ export default function Transaction({
 }) {
   const [chat, setChat] = useState("");
   const [tracking, setTracking] = useState("");
-  const [rating, setRating] = useState(1);
-  const [ratingComment, setRatingComment] = useState("");
   const router = useRouter();
   const yamato = ["宅急便（ヤマト運輸）"];
   const sagawa = ["宅配便（佐川急便）"];
@@ -103,7 +138,10 @@ export default function Transaction({
             <div className="flex items-center gap-4">
               <div className="relative h-20 w-20 my-4">
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${order.item.images[0].id}.${order.item.images[0].format}`}
+                  src={getItemImage(
+                    order.item.images[0].id,
+                    order.item.images[0].format
+                  )}
                   alt={order.item.name}
                   fill={true}
                   className="aspect-square object-cover rounded-md"
@@ -159,7 +197,7 @@ export default function Transaction({
                     )}
                   </td>
                 </tr>
-                {order.userId !== userId && (
+                {order.user.id !== userId && (
                   <>
                     <tr>
                       <td className="font-semibold py-2">住所</td>
@@ -216,7 +254,7 @@ export default function Transaction({
               </div>
             </div>
           )}
-          {order.expiresAt && order.userId === userId && (
+          {order.expiresAt && order.user.id === userId && (
             <div className="bg-red-100 border border-red-400 rounded-md mb-4">
               <div className="max-w-3xl mx-auto p-4">
                 <p className="text-sm flex items-center text-red-500">
@@ -228,7 +266,7 @@ export default function Transaction({
               </div>
             </div>
           )}
-          {order.expiresAt && order.userId === userId && (
+          {order.expiresAt && order.user.id === userId && (
             <div className="bg-gray-100 border rounded-md mb-4">
               <div className="flex justify-between items-center max-w-3xl mx-auto p-4">
                 <p className="text-sm flex items-center">
@@ -268,7 +306,7 @@ export default function Transaction({
             </div>
           )}
           <div>
-            {order.userId === userId &&
+            {order.user.id === userId &&
               order.expiresAt === null &&
               !order.shipped &&
               !order.complete && (
@@ -303,7 +341,7 @@ export default function Transaction({
                   }}
                 />
               )}
-            {order.userId !== userId && order.shipped && !order.complete && (
+            {order.user.id !== userId && order.shipped && !order.complete && (
               <Rating
                 reviewer="seller"
                 onSubmit={async (rating, text) => {
@@ -339,7 +377,7 @@ export default function Transaction({
           <div>
             {!order.complete &&
               order.expiresAt === null &&
-              order.userId === userId &&
+              order.user.id === userId &&
               shippingInclude.includes(order.item.shipping) && (
                 <div className="mb-4">
                   <label htmlFor="tracking" className="block mb-1">
@@ -398,7 +436,7 @@ export default function Transaction({
                 >
                   <div className="w-11 h-11 relative mt-2">
                     <Image
-                      src={`https://cdn.discordapp.com/avatars/${chat.userId}/${chat.user.avatar}.png`}
+                      src={getAvatar(chat.user.id, chat.user.avatar)}
                       alt={chat.user.name || ""}
                       fill={true}
                       className="rounded-full"
@@ -427,7 +465,7 @@ export default function Transaction({
                   rows={3}
                   className="w-full border rounded-md p-2 focus:ring-sky-500 focus:border-sky-500"
                   placeholder={
-                    order.userId === userId
+                    order.user.id === userId
                       ? "出品者へ連絡したい内容を入力してください"
                       : "購入者へ連絡したい内容を入力してください"
                   }
@@ -465,13 +503,13 @@ export default function Transaction({
             <h4 className="text-lg font-bold mb-2">購入者情報</h4>
             <hr />
             <Link
-              href={`/user/profile/${order.item.userId}`}
+              href={`/user/profile/${order.item.user.id}`}
               className="flex justify-between items-center py-4 duration-150 hover:bg-gray-100"
             >
               <div className="flex items-center">
                 <div className="w-11 h-11 relative">
                   <Image
-                    src={`https://cdn.discordapp.com/avatars/${order.item.userId}/${order.item.user.avatar}.png`}
+                    src={getAvatar(order.item.user.id, order.item.user.avatar)}
                     alt={order.item.user.name || ""}
                     fill={true}
                     className="rounded-full"
@@ -499,21 +537,57 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       where: {
         id: ctx.params?.orderId?.toString(),
       },
-      include: {
-        chats: {
-          include: {
-            user: true,
+      select: {
+        id: true,
+        expiresAt: true,
+        shipped: true,
+        complete: true,
+        tracking: true,
+        createdAt: true,
+        item: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            shipping: true,
+            images: {
+              select: {
+                id: true,
+                format: true,
+              },
+            },
+            user: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true,
+              },
+            },
           },
         },
-        item: {
-          include: {
-            images: true,
-            user: true,
+        chats: {
+          select: {
+            id: true,
+            text: true,
+            createdAt: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true,
+              },
+            },
           },
         },
         user: {
-          include: {
-            reviews: true,
+          select: {
+            id: true,
+            reviews: {
+              select: {
+                id: true,
+                rating: true,
+              },
+            },
           },
         },
         address: true,
@@ -525,8 +599,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       };
     }
     if (
-      order.userId !== session.user.id ||
-      order.item.userId !== session.user.id
+      order.user.id !== session.user.id ||
+      order.item.user.id !== session.user.id
     ) {
       return {
         redirect: {

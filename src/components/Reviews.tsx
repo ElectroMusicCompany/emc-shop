@@ -2,7 +2,11 @@ import { IoStar, IoStarHalf, IoStarOutline } from "react-icons/io5";
 import { countRating } from "@/utils/countRating";
 import { Review } from "@prisma/client";
 
-export default function Reviews({ reviews }: { reviews: Review[] }) {
+export default function Reviews({
+  reviews,
+}: {
+  reviews: { id: string; rating: boolean }[];
+}) {
   const rating = countRating(reviews);
   return (
     <div className="flex items-center">

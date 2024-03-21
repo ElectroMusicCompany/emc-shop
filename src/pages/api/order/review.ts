@@ -2,6 +2,7 @@ import { db } from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
+import { getItemImage } from "@/utils/images";
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,9 +20,16 @@ export default async function handler(
         where: {
           id: req.body.orderId as string,
         },
-        include: {
+        select: {
+          id: true,
+          shipped: true,
+          createdAt: true,
           item: {
-            include: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              userId: true,
               images: true,
             },
           }
@@ -67,10 +75,10 @@ export default async function handler(
           body: JSON.stringify({
             userId: order.item.userId,
             item: {
-              id: order.itemId,
+              id: order.item.id,
               name: order.item.name,
               price: order.item.price,
-              image: `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/ITEM_IMAGES/${order.item.images[0].id}.${order.item.images[0].format}`
+              image: getItemImage(order.item.images[0].id, order.item.images[0].format)
             },
             order: {
               id: order.id,
