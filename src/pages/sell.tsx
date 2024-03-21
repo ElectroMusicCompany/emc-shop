@@ -425,7 +425,7 @@ export default function Sell({ user, item }: { user: User; item?: Item }) {
                 <p>
                   ¥
                   {watch("stripe")
-                    ? watch("price").toLocaleString()
+                    ? (watch("price") || 0).toLocaleString()
                     : (
                         watch("price") - Math.round(watch("price") * 0.036) || 0
                       ).toLocaleString()}
