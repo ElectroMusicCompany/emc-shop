@@ -42,7 +42,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     form.parse(req, async function (err, fields, files: any) {
       const file = files.file[0];
-      const image = await sharp(file.filepath).resize(1080, null).toFormat("jpeg").toBuffer();
+      let image: Buffer;
+      const sharpened = sharp(file.filepath)
+      const meta = await sharpened.metadata();
+      if (meta.width! >= meta.height!) {
+        sharpened.resize(1024, null);
+      } else {
+        sharpened.resize(null, 1024);
+      }
+      image = await sharpened.toFormat("jpeg").toBuffer();
       const command = new PutObjectCommand({
         Bucket: "emcshop",
         Key: `ITEM_IMAGES/${imageId}.jpg`,
