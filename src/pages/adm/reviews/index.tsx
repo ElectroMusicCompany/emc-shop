@@ -1,6 +1,7 @@
 import AdminLayout from "@/components/admin/AdminLayout";
 import { db } from "@/lib/prisma";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { Review } from "@prisma/client";
 import {
   flexRender,
   getCoreRowModel,
@@ -12,9 +13,8 @@ import { getServerSession } from "next-auth/next";
 import NextHeadSeo from "next-head-seo";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { Report } from "@prisma/client";
 
-export default function AdminItems({ reports }: { reports: Report[] }) {
+export default function AdminItems({ reviews }: { reviews: Review[] }) {
   const columns = [
     {
       header: "ID",
@@ -29,8 +29,12 @@ export default function AdminItems({ reports }: { reports: Report[] }) {
       accessorKey: "itemId",
     },
     {
-      header: "取引ID",
-      accessorKey: "orderId",
+      header: "購入者?",
+      accessorKey: "buyer",
+    },
+    {
+      header: "評価",
+      accessorKey: "rating",
     },
     {
       header: "作成日",
@@ -39,14 +43,14 @@ export default function AdminItems({ reports }: { reports: Report[] }) {
   ];
   const table = useReactTable({
     columns,
-    data: reports,
+    data: reviews,
     getCoreRowModel: getCoreRowModel<Report>(),
     getPaginationRowModel: getPaginationRowModel(),
   });
   return (
     <AdminLayout url="report">
-      <NextHeadSeo title="通報 - EMC Shop Admin" />
-      <h2 className="text-2xl font-bold">通報</h2>
+      <NextHeadSeo title="レビュー - EMC Shop Admin" />
+      <h2 className="text-2xl font-bold">レビュー</h2>
       <div className="overflow-x-scroll">
         <table className="w-full my-4">
           <thead>
@@ -112,16 +116,18 @@ export default function AdminItems({ reports }: { reports: Report[] }) {
                               cell.getContext()
                             )}
                           </Link>
-                        ) : columns[i]["accessorKey"] === "orderId" ? (
-                          <Link
-                            className="text-sky-500 hover:underline"
-                            href={`/adm/orders/${cell.getContext().getValue()}`}
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </Link>
+                        ) : columns[i]["accessorKey"] === "buyer" ? (
+                          cell.getContext().getValue() === true ? (
+                            "◯"
+                          ) : (
+                            "×"
+                          )
+                        ) : columns[i]["accessorKey"] === "rating" ? (
+                          cell.getContext().getValue() === true ? (
+                            "良"
+                          ) : (
+                            "悪"
+                          )
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
@@ -165,21 +171,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     };
   }
   const page = ctx.query.page ? Number(ctx.query.page) : 1;
-  const reports = await db.report.findMany({
+  const reviews = await db.review.findMany({
     orderBy: {
       id: "desc",
     },
     take: 24,
     skip: 24 * (page - 1),
   });
-  if (!reports) {
+  if (!reviews) {
     return {
       notFound: true,
     };
   }
   return {
     props: {
-      reports: JSON.parse(JSON.stringify(reports)),
+      reviews: JSON.parse(JSON.stringify(reviews)),
     },
   };
 };

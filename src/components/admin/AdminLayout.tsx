@@ -13,6 +13,7 @@ import {
   MdOutlineAlbum,
   MdOutlinePayments,
   MdOutlineFlag,
+  MdOutlineStar,
 } from "react-icons/md";
 
 const notoSansJp = Noto_Sans_JP({ subsets: ["latin"] });
@@ -92,6 +93,16 @@ export default function AdminLayout({
           >
             <MdOutlineFlag size={20} />
             <p className="hidden lg:block">通報</p>
+          </Link>
+          <Link
+            href="/adm/reviews"
+            className={twMerge(
+              "flex gap-1 items-center justify-center lg:justify-start rounded-md w-full px-4 py-2 duration-150",
+              url === "report" ? "bg-sky-100 text-sky-500" : "hover:bg-gray-100"
+            )}
+          >
+            <MdOutlineStar size={20} />
+            <p className="hidden lg:block">レビュー</p>
           </Link>
         </div>
       </aside>
