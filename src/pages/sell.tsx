@@ -13,6 +13,7 @@ import { GetServerSideProps } from "next";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { Prisma, User } from "@prisma/client";
 import Link from "next/link";
+import NextHeadSeo from "next-head-seo";
 
 type Inputs = {
   images: Array<File>;
@@ -54,7 +55,9 @@ export default function Sell({ user, item }: { user: User; item?: Item }) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/png": [".png", ".jpg", ".jpeg"],
+      "image/png": [".png"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/webp": [".webp"],
     },
   });
 
@@ -188,6 +191,18 @@ export default function Sell({ user, item }: { user: User; item?: Item }) {
 
   return (
     <Layout>
+      <NextHeadSeo
+        title="出品 - EMC Shop"
+        description="出品"
+        canonical="https://shop.emcmusic.net/sell"
+        og={{
+          title: "出品 - EMC Shop",
+          image: "https://shop.emcmusic.net/ogp.png",
+        }}
+        twitter={{
+          card: "summary",
+        }}
+      />
       {session ? (
         <div className="max-w-xl mx-auto ">
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -228,7 +243,7 @@ export default function Sell({ user, item }: { user: User; item?: Item }) {
                   {...getRootProps()}
                   className="w-full cursor-pointer flex flex-col items-center py-8 justify-center border rounded-md border-dashed border-gray-500 hover:border-sky-500"
                 >
-                  <input {...getInputProps} className="hidden" />
+                  <input {...getInputProps()} />
                   <MdOutlinePhotoCamera size={32} />
                   <p>商品画像（最大10枚まで）</p>
                 </div>
