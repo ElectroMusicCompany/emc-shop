@@ -416,7 +416,7 @@ export default function Sell({
                 <input
                   id="points"
                   type="checkbox"
-                  defaultValue="true"
+                  defaultChecked={true}
                   className="focus:ring-sky-500 rounded text-sky-500"
                   {...register("points", {
                     required: false,
