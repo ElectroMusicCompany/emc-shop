@@ -5,7 +5,7 @@ import { authOptions } from "../auth/[...nextauth]";
 import crypto from "crypto";
 import formidable from "formidable";
 import { db } from "@/lib/prisma";
-import fs from "fs";
+import sharp from "sharp";
 
 export const config = {
   api: {
@@ -42,17 +42,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     form.parse(req, async function (err, fields, files: any) {
       const file = files.file[0];
-      const format = FileMimeType[file.mimetype];
+      const image = await sharp(file.filepath).resize(1080, null).toFormat("jpeg").toBuffer();
       const command = new PutObjectCommand({
         Bucket: "emcshop",
-        Key: `ITEM_IMAGES/${imageId}.${format}`,
-        Body: fs.createReadStream(file.filepath),
+        Key: `ITEM_IMAGES/${imageId}.jpg`,
+        Body: image,
         ContentType: file.mimetype,
       });
       await db.image.create({
         data: {
           id: imageId,
-          format: format,
+          format: "jpg",
         },
       });
       try {

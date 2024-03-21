@@ -30,6 +30,7 @@
     "react-icons": "^5.0.1",
     "react-markdown": "^9.0.1",
     "react-nl2br": "^1.0.4",
+    "sharp": "^0.33.2",
     "stripe": "^14.21.0",
     "tailwind-merge": "^2.2.2"
   },
