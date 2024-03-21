@@ -79,6 +79,12 @@ export default function Sell({
   const onSubmit: SubmitHandler<Inputs> = async (data: Inputs) => {
     const toastId = toast.loading("画像をアップロード中...");
     try {
+      if (!data.images || data.images.length === 0) {
+        toast.error("画像を1枚以上追加してください", {
+          id: toastId,
+        });
+        return;
+      }
       const mediaIds = [];
       for (const file of data.images) {
         const formData = new FormData();
@@ -457,7 +463,12 @@ export default function Sell({
           </div>
           <button
             type="submit"
-            disabled={!isValid || !isDirty || !user.stripeId}
+            disabled={
+              !isValid ||
+              !isDirty ||
+              !user.stripeId ||
+              watch("images").length === 0
+            }
             className="w-full bg-sky-500 text-white py-2 rounded-md my-4 font-medium duration-150 hover:bg-sky-600 disabled:bg-gray-400"
           >
             出品する
@@ -465,7 +476,6 @@ export default function Sell({
         </form>
         {item && (
           <button
-            disabled={!isValid || !isDirty || !user.stripeId}
             onClick={async () => {
               const loading = toast.loading("削除中...");
               const res = await fetch("/api/item/delete", {
