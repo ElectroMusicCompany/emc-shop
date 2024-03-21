@@ -1,4 +1,4 @@
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/components/admin/AdminLayout";
 import NextHeadSeo from "next-head-seo";
 import { GetServerSideProps } from "next";
 import { Item, Order, User } from "@prisma/client";
@@ -8,10 +8,36 @@ import { useEffect } from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { format } from "date-fns";
+import { twMerge } from "tailwind-merge";
+import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 export default function AdminItems({ item }: { item: Item }) {
   const { register, handleSubmit, watch, setValue } = useForm<Item>();
-  const onSubmit: SubmitHandler<Item> = async (data) => {};
+  const router = useRouter();
+  const onSubmit: SubmitHandler<Item> = async (data) => {
+    const loading = toast.loading("削除中...");
+    const res = await fetch("/api/admin/delete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        itemId: item.id,
+      }),
+    });
+    const d = await res.json();
+    if (d.status === "success") {
+      toast.success("削除しました", {
+        id: loading,
+      });
+      router.push("/adm/items");
+    } else {
+      toast.error("エラーが発生しました", {
+        id: loading,
+      });
+    }
+  };
   useEffect(() => {
     setValue("name", item.name);
     setValue("price", item.price);
@@ -169,6 +195,15 @@ export default function AdminItems({ item }: { item: Item }) {
             />
           </div>
         </div>
+        <button
+          className={twMerge(
+            "bg-red-500 text-white py-2 px-4 rounded-md duration-150 hover:bg-red-600",
+            "disabled:bg-gray-300 disabled:text-gray-500"
+          )}
+          onClick={handleSubmit(onSubmit)}
+        >
+          削除する
+        </button>
       </form>
     </AdminLayout>
   );

@@ -124,6 +124,7 @@ export default function UserPage({
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  const page = ctx.query.page ? Number(ctx.query.page) : 1;
   const user = await db.user.findUnique({
     where: {
       id: ctx.query.userId?.toString(),
@@ -145,6 +146,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             },
           },
         },
+        take: 24 * page,
+        skip: 24 * (page - 1),
       },
       reviews: {
         select: {

@@ -1,4 +1,4 @@
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/components/admin/AdminLayout";
 import NextHeadSeo from "next-head-seo";
 import { GetServerSideProps } from "next";
 import { Item, Order } from "@prisma/client";
@@ -149,6 +149,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   }
+  const page = ctx.query.page ? Number(ctx.query.page) : 1;
   const items = await db.item.findMany({
     orderBy: {
       id: "asc",
@@ -156,8 +157,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     include: {
       order: true,
     },
-    take: 12,
+    take: 24 * page,
+    skip: 24 * (page - 1),
   });
+  if (!items) {
+    return {
+      notFound: true,
+    };
+  }
   return {
     props: {
       items: JSON.parse(JSON.stringify(items)),

@@ -1,4 +1,4 @@
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/components/admin/AdminLayout";
 import { db } from "@/lib/prisma";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { GetServerSideProps } from "next";
@@ -37,7 +37,22 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   }
+  const page = ctx.query.page ? Number(ctx.query.page) : 1;
+  const reports = await db.report.findMany({
+    orderBy: {
+      id: "asc",
+    },
+    take: 24,
+    skip: 24 * (page - 1),
+  });
+  if (!reports) {
+    return {
+      notFound: true,
+    };
+  }
   return {
-    props: {},
+    props: {
+      reports: JSON.parse(JSON.stringify(reports)),
+    },
   };
 };

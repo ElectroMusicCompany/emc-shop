@@ -67,6 +67,7 @@ export default function UserPage({ user }: { user: UserWithOrders }) {
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  const page = ctx.query.page ? Number(ctx.query.page) : 1;
   if (session) {
     const user = await db.user.findUnique({
       where: {
@@ -84,6 +85,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
               },
             },
           },
+          take: 24 * page,
+          skip: 24 * (page - 1),
         },
       },
     });

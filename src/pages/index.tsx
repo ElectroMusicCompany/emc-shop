@@ -54,6 +54,7 @@ export default function Home({ items }: { items: ItemWithImages[] }) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const page = ctx.query.page ? Number(ctx.query.page) : 1;
   const items = await db.item.findMany({
     orderBy: {
       createdAt: "desc",
@@ -69,7 +70,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         },
       },
     },
-    take: 24,
+    take: 24 * page,
+    skip: 24 * (page - 1),
   });
   return {
     props: {

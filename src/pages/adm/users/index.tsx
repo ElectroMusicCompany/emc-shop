@@ -1,4 +1,4 @@
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/components/admin/AdminLayout";
 import NextHeadSeo from "next-head-seo";
 import { GetServerSideProps } from "next";
 import { User } from "@prisma/client";
@@ -116,6 +116,7 @@ export default function AdminItems({ users }: { users: User[] }) {
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  const page = ctx.query.page ? Number(ctx.query.page) : 1;
   if (!session) {
     return {
       redirect: {
@@ -141,8 +142,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     orderBy: {
       id: "asc",
     },
-    take: 12,
+    take: 24 * page,
+    skip: 24 * (page - 1),
   });
+  if (!users) {
+    return {
+      notFound: true,
+    };
+  }
   return {
     props: {
       users: JSON.parse(JSON.stringify(users)),

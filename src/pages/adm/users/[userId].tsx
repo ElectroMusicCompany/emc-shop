@@ -1,4 +1,4 @@
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/components/admin/AdminLayout";
 import NextHeadSeo from "next-head-seo";
 import { GetServerSideProps } from "next";
 import { User } from "@prisma/client";
