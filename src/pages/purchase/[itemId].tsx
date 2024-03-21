@@ -211,32 +211,34 @@ export default function Purchase({
               </div>
             </div>
           </div>
-          <button
-            className="w-full bg-sky-500 text-white py-2 rounded-md mt-4 duration-150 hover:bg-sky-600 disabled:bg-gray-400"
-            disabled={!selectedAddress}
-            onClick={async () => {
-              const loading = toast.loading("購入中...");
-              const red = await (
-                await fetch(
-                  `/api/item/purchasePoint?itemId=${item.id}&buyerId=${user.id}&addressId=${selectedAddress}`
-                )
-              ).json();
-              if (red.status === "success") {
-                toast.success("処理完了", {
-                  id: loading,
-                });
-                window.location.href = red.redirect;
-              } else {
-                toast.error("エラーが発生しました", {
-                  id: loading,
-                });
-              }
-            }}
-          >
-            {item.points && user.points >= item.price
-              ? "EMC Pointで購入する"
-              : "差額をEMC Pointで払う"}
-          </button>
+          {user.points !== 0 && (
+            <button
+              className="w-full bg-sky-500 text-white py-2 rounded-md mt-4 duration-150 hover:bg-sky-600 disabled:bg-gray-400"
+              disabled={!selectedAddress}
+              onClick={async () => {
+                const loading = toast.loading("購入中...");
+                const red = await (
+                  await fetch(
+                    `/api/item/purchasePoint?itemId=${item.id}&buyerId=${user.id}&addressId=${selectedAddress}`
+                  )
+                ).json();
+                if (red.status === "success") {
+                  toast.success("処理完了", {
+                    id: loading,
+                  });
+                  window.location.href = red.redirect;
+                } else {
+                  toast.error("エラーが発生しました", {
+                    id: loading,
+                  });
+                }
+              }}
+            >
+              {item.points && user.points >= item.price
+                ? "EMC Pointで購入する"
+                : "差額をEMC Pointで払う"}
+            </button>
+          )}
           <button
             className="w-full bg-sky-500 text-white py-2 rounded-md mt-4 duration-150 hover:bg-sky-600 disabled:bg-gray-400"
             disabled={!selectedAddress}
