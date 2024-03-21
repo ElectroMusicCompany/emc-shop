@@ -457,7 +457,7 @@ export default function Sell({
           </div>
           <button
             type="submit"
-            disabled={!isValid && !user.stripeId}
+            disabled={!isValid || !isDirty || !user.stripeId}
             className="w-full bg-sky-500 text-white py-2 rounded-md my-4 font-medium duration-150 hover:bg-sky-600 disabled:bg-gray-400"
           >
             出品する
@@ -465,7 +465,7 @@ export default function Sell({
         </form>
         {item && (
           <button
-            disabled={!isValid && !isDirty && !user.stripeId}
+            disabled={!isValid || !isDirty || !user.stripeId}
             onClick={async () => {
               const loading = toast.loading("削除中...");
               const res = await fetch("/api/item/delete", {
