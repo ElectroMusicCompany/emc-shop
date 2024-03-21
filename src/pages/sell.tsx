@@ -54,7 +54,7 @@ export default function Sell({
     setValue,
   } = useForm<Inputs>({
     mode: "onChange",
-    defaultValues: { points: true, stripe: false },
+    defaultValues: { points: true, stripe: false, images: [] },
   });
   const { data: session } = useSession();
 
