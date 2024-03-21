@@ -211,28 +211,30 @@ export default function Sell({ user, item }: { user: User; item?: Item }) {
               <div className="flex mb-2">
                 {watch("images") && watch("images").length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                    {Array.from(watch("images")).map((image, i) => (
-                      <div className="relative" key={i}>
-                        <img
-                          src={URL.createObjectURL(image)}
-                          alt=""
-                          className="h-32 object-cover aspect-square rounded-md"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const images = watch("images");
-                            const newImages = images.filter(
-                              (img) => img !== images[i]
-                            );
-                            setValue("images", newImages);
-                          }}
-                          className="absolute top-1 right-1 bg-white rounded-full p-1"
-                        >
-                          <MdOutlineClose size={16} />
-                        </button>
-                      </div>
-                    ))}
+                    {Array.from(watch("images"))
+                      .reverse()
+                      .map((image, i) => (
+                        <div className="relative" key={i}>
+                          <img
+                            src={URL.createObjectURL(image)}
+                            alt=""
+                            className="h-32 object-cover aspect-square rounded-md"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const images = watch("images");
+                              const newImages = images.filter(
+                                (img) => img !== images[images.length - i - 1]
+                              );
+                              setValue("images", newImages);
+                            }}
+                            className="absolute top-1 right-1 bg-white rounded-full p-1"
+                          >
+                            <MdOutlineClose size={16} />
+                          </button>
+                        </div>
+                      ))}
                   </div>
                 )}
               </div>
