@@ -13,6 +13,7 @@ import { twMerge } from "tailwind-merge";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { compareAsc } from "date-fns";
 
 export default function AdminOrders({ orders }: { orders: Order[] }) {
   const columns = [
@@ -27,6 +28,10 @@ export default function AdminOrders({ orders }: { orders: Order[] }) {
     {
       header: "購入商品",
       accessorKey: "itemId",
+    },
+    {
+      header: "支払期日",
+      accessorKey: "expiresAt",
     },
     {
       header: "作成日",
@@ -106,6 +111,19 @@ export default function AdminOrders({ orders }: { orders: Order[] }) {
                             cell.getContext()
                           )}
                         </Link>
+                      ) : columns[i]["accessorKey"] === "expiresAt" ? (
+                        cell.getContext().getValue() ? (
+                          compareAsc(
+                            new Date(),
+                            new Date(cell.getContext().getValue() as string)
+                          ) === 1 ? (
+                            <p className="text-red-500 font-bold">超過</p>
+                          ) : (
+                            "未払"
+                          )
+                        ) : (
+                          "支払済み"
+                        )
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,

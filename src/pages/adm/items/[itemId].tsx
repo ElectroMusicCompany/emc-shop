@@ -7,6 +7,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { format } from "date-fns";
 
 export default function AdminItems({ item }: { item: Item }) {
   const { register, handleSubmit, watch, setValue } = useForm<Item>();
@@ -18,7 +19,6 @@ export default function AdminItems({ item }: { item: Item }) {
     setValue("state", item.state);
     setValue("shipping", item.shipping);
     setValue("userId", item.userId);
-    setValue("createdAt", item.createdAt);
   }, []);
   return (
     <AdminLayout url="item">
@@ -163,6 +163,7 @@ export default function AdminItems({ item }: { item: Item }) {
               id="itemId"
               type="text"
               placeholder="createdAt"
+              value={format(new Date(item.createdAt), "yyyy-MM-dd HH:mm:ss")}
               disabled
               {...register("createdAt")}
             />

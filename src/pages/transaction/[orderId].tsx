@@ -222,6 +222,8 @@ export default function Transaction({
                 <p className="text-sm flex items-center text-red-500">
                   <MdOutlineAttachMoney size={24} className="mr-2" />
                   支払期日までに、出品者に連絡をして支払いを完了してください
+                  <br />
+                  支払いが確認できない場合、自動でキャンセルされます
                 </p>
               </div>
             </div>
@@ -336,6 +338,7 @@ export default function Transaction({
           </div>
           <div>
             {!order.complete &&
+              order.expiresAt === null &&
               order.userId === userId &&
               shippingInclude.includes(order.item.shipping) && (
                 <div className="mb-4">
@@ -525,6 +528,19 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       order.userId !== session.user.id ||
       order.item.userId !== session.user.id
     ) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+    if (order.expiresAt && new Date() > order.expiresAt) {
+      await db.order.delete({
+        where: {
+          id: order.id,
+        },
+      });
       return {
         redirect: {
           destination: "/",

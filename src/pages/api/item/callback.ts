@@ -72,7 +72,7 @@ export default async function handler(
           order: {
             id: order.id,
             createdAt: order.createdAt,
-            expiresAt: add(order.createdAt, { days: 3 }),
+            expiresAt: item.stripe ? add(order.createdAt, { days: 3 }) : null,
           },
         }),
       })

@@ -32,6 +32,7 @@ export default function Rating({
             name="rating"
             id="good"
             value="1"
+            defaultChecked
             onChange={() => setRating(1)}
             className="text-sky-500 focus:ring-sky-500"
           />

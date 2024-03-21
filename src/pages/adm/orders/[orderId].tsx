@@ -7,6 +7,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth/next";
+import { format } from "date-fns";
 
 type Order = Prisma.OrderGetPayload<{
   include: {
@@ -20,7 +21,6 @@ export default function AdminItems({ order }: { order: Order }) {
   useEffect(() => {
     setValue("userId", order.userId);
     setValue("itemId", order.itemId);
-    setValue("createdAt", order.createdAt);
   }, []);
   return (
     <AdminLayout url="order">
@@ -159,6 +159,29 @@ export default function AdminItems({ order }: { order: Order }) {
           <div className="w-full px-3 mb-6 md:mb-0">
             <label
               className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
+              htmlFor="expiresAt"
+            >
+              支払期日
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="expiresAt"
+              type="text"
+              placeholder="expiresAt"
+              value={
+                order.expiresAt
+                  ? format(order.expiresAt, "yyyy-MM-dd HH:mm:ss")
+                  : "支払済み"
+              }
+              disabled
+              {...register("expiresAt")}
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap -mx-3 mb-3">
+          <div className="w-full px-3 mb-6 md:mb-0">
+            <label
+              className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
               htmlFor="createdAt"
             >
               作成日
@@ -168,6 +191,7 @@ export default function AdminItems({ order }: { order: Order }) {
               id="itemId"
               type="text"
               placeholder="createdAt"
+              value={format(order.createdAt, "yyyy-MM-dd HH:mm:ss")}
               disabled
               {...register("createdAt")}
             />
