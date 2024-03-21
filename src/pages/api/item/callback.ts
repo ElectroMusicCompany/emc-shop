@@ -20,6 +20,9 @@ export default async function handler(
       },
     });
     if (user) {
+      if (user.suspended) {
+        return res.status(403).json({ status: "error", message: "Account suspended" });
+      }
       const { itemId, buyerId, addressId, sessionId } = req.query;
       if (!itemId || !buyerId || !sessionId) {
         return res.status(400).json({ status: "error", error: "Invalid request" });

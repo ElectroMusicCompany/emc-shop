@@ -33,6 +33,10 @@ export default function AdminItems({ users }: { users: User[] }) {
       accessorKey: "admin",
     },
     {
+      header: "凍結",
+      accessorKey: "suspended",
+    },
+    {
       header: "作成日",
       accessorKey: "createdAt",
     },
@@ -91,6 +95,12 @@ export default function AdminItems({ users }: { users: User[] }) {
                           )}
                         </Link>
                       ) : columns[i]["accessorKey"] === "admin" ? (
+                        cell.getContext().getValue() === true ? (
+                          "◯"
+                        ) : (
+                          "×"
+                        )
+                      ) : columns[i]["accessorKey"] === "suspended" ? (
                         cell.getContext().getValue() === true ? (
                           "◯"
                         ) : (

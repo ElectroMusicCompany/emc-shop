@@ -7,3 +7,4 @@
 - Stripe以外で支払えるように
 - 画像URL作成utilを分離
 - pagepropsを限界まで削減
+- アカウント凍結機能

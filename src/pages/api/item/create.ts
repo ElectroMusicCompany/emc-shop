@@ -9,6 +9,17 @@ export default async function handler(
 ) {
   const session = await getServerSession(req, res, authOptions);
   if (session) {
+    const user = await db.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+    });
+    if (!user) {
+      return res.status(401).json({ status: "error", error: "Unauthorized" });
+    }
+    if (user.suspended) {
+      return res.status(403).json({ status: "error", message: "Account suspended" });
+    }
     if (req.body.itemId) {
       const item = await db.item.update({
         where: {

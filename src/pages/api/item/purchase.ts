@@ -11,6 +11,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const session = await getServerSession(req, res, authOptions);
 
   if (session) {
+    const user = await db.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+    });
+    if (!user) {
+      return res.status(401).json({ status: "error", error: "Unauthorized" });
+    }
+    if (user.suspended) {
+      return res.status(403).json({ status: "error", message: "Account suspended" });
+    }
     const { itemId, buyerId, addressId } = req.query;
     const item = await db.item.findUnique({
       where: {

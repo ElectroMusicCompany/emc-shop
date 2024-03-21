@@ -26,6 +26,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const session = await getServerSession(req, res, authOptions);
 
   if (session) {
+    const user = await db.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+    });
+    if (!user) {
+      return res.status(401).json({ status: "error", error: "Unauthorized" });
+    }
+    if (user.suspended) {
+      return res.status(403).json({ status: "error", message: "Account suspended" });
+    }
     const form = formidable();
     const client = new S3Client({ region: "auto", endpoint: process.env.R2_ENDPOINT, credentials: {
       accessKeyId: process.env.R2_ACCESS_KEY_ID || "",

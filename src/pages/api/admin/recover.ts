@@ -20,35 +20,14 @@ export default async function handler(
     if (!user?.admin) {
       return res.status(401).json({ status: "error", message: "Unauthorized" });
     }
-    const { userId, itemId, reportId, orderId } = req.body;
-    if (itemId) {
-      const n = await db.item.delete({
-        where: {
-          id: itemId,
-        },
-      });
-      return res.status(200).json({ status: "success", address: n });
-    } else if (reportId) {
-      const n = await db.report.delete({
-        where: {
-          id: reportId,
-        },
-      });
-      return res.status(200).json({ status: "success", address: n });
-    } else if (orderId) {
-      const n = await db.order.delete({
-        where: {
-          id: orderId,
-        },
-      });
-      return res.status(200).json({ status: "success", address: n });
-    } else if (userId) {
+    const { userId } = req.body;
+    if (userId) {
       const n = await db.user.update({
         where: {
           id: userId,
         },
         data: {
-          suspended: true
+          suspended: false
         },
       });
       return res.status(200).json({ status: "success", address: n });

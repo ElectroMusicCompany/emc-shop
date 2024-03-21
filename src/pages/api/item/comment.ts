@@ -15,6 +15,9 @@ export default async function handler(
       },
     });
     if (user) {
+      if (user.suspended) {
+        return res.status(403).json({ status: "error", message: "Account suspended" });
+      }
       const comment = await db.comment.create({
         data: {
           userId: user.id,

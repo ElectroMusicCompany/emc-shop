@@ -37,6 +37,50 @@ export default function AdminItems({ user }: { user: User }) {
       });
     }
   };
+  const suspendUser = async () => {
+    const loading = toast.loading("凍結中...");
+    const res = await fetch("/api/admin/delete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user.id,
+      }),
+    });
+    const d = await res.json();
+    if (d.status === "success") {
+      toast.success("凍結しました", {
+        id: loading,
+      });
+    } else {
+      toast.error("エラーが発生しました", {
+        id: loading,
+      });
+    }
+  };
+  const recoverUser = async () => {
+    const loading = toast.loading("凍結解除中...");
+    const res = await fetch("/api/admin/recover", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user.id,
+      }),
+    });
+    const d = await res.json();
+    if (d.status === "success") {
+      toast.success("凍結解除しました", {
+        id: loading,
+      });
+    } else {
+      toast.error("エラーが発生しました", {
+        id: loading,
+      });
+    }
+  };
   useEffect(() => {
     setValue("name", user.name);
     setValue("description", user.description);
@@ -120,6 +164,8 @@ export default function AdminItems({ user }: { user: User }) {
             </select>
           </div>
         </div>
+      </form>
+      <div className="flex items-center gap-2">
         <button
           className={twMerge(
             "bg-sky-500 text-white py-2 px-4 rounded-md duration-150 hover:bg-sky-600",
@@ -129,7 +175,28 @@ export default function AdminItems({ user }: { user: User }) {
         >
           保存する
         </button>
-      </form>
+        {user.suspended ? (
+          <button
+            className={twMerge(
+              "bg-green-500 text-white py-2 px-4 rounded-md duration-150 hover:bg-green-600",
+              "disabled:bg-gray-300 disabled:text-gray-500"
+            )}
+            onClick={recoverUser}
+          >
+            凍結解除する
+          </button>
+        ) : (
+          <button
+            className={twMerge(
+              "bg-red-500 text-white py-2 px-4 rounded-md duration-150 hover:bg-red-600",
+              "disabled:bg-gray-300 disabled:text-gray-500"
+            )}
+            onClick={suspendUser}
+          >
+            凍結する
+          </button>
+        )}
+      </div>
     </AdminLayout>
   );
 }
