@@ -53,75 +53,77 @@ export default function AdminItems({ items }: { items: Item[] }) {
     <AdminLayout url="item">
       <NextHeadSeo title="ユーザー - EMC Shop Admin" />
       <h2 className="text-2xl font-bold">商品</h2>
-      <table className="w-full my-4">
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header, i) => (
-                <th
-                  key={header.id}
-                  colSpan={header.colSpan}
-                  className={twMerge(
-                    "bg-white py-2",
-                    i === 0 && "rounded-tl-md",
-                    i === headerGroup.headers.length - 1 && "rounded-tr-md"
-                  )}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => {
-            return (
-              <tr key={row.id} className="text-center bg-white border-t">
-                {row.getVisibleCells().map((cell, i) => {
-                  return (
-                    <td key={cell.id} className="py-2">
-                      {i === 0 ? (
-                        <Link
-                          className="text-sky-500 hover:underline"
-                          href={`/adm/items/${cell.getContext().getValue()}`}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </Link>
-                      ) : columns[i]["accessorKey"] === "order" ? (
-                        cell.getContext().getValue() ? (
+      <div className="overflow-x-scroll">
+        <table className="w-full my-4">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header, i) => (
+                  <th
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    className={twMerge(
+                      "bg-white py-2",
+                      i === 0 && "rounded-tl-md",
+                      i === headerGroup.headers.length - 1 && "rounded-tr-md"
+                    )}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => {
+              return (
+                <tr key={row.id} className="text-center bg-white border-t">
+                  {row.getVisibleCells().map((cell, i) => {
+                    return (
+                      <td key={cell.id} className="py-2 px-4 whitespace-nowrap">
+                        {i === 0 ? (
                           <Link
                             className="text-sky-500 hover:underline"
-                            href={`/adm/orders/${
-                              (cell.getContext().getValue() as Order).id
-                            }`}
+                            href={`/adm/items/${cell.getContext().getValue()}`}
                           >
-                            済
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
                           </Link>
+                        ) : columns[i]["accessorKey"] === "order" ? (
+                          cell.getContext().getValue() ? (
+                            <Link
+                              className="text-sky-500 hover:underline"
+                              href={`/adm/orders/${
+                                (cell.getContext().getValue() as Order).id
+                              }`}
+                            >
+                              済
+                            </Link>
+                          ) : (
+                            "未"
+                          )
                         ) : (
-                          "未"
-                        )
-                      ) : (
-                        flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                          flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </AdminLayout>
   );
 }

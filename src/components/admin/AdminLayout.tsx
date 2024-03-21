@@ -28,7 +28,7 @@ export default function AdminLayout({
   return (
     <div
       className={twMerge(
-        "relative flex items-start justify-center min-h-screen",
+        "relative flex flex-col items-center lg:flex-row lg:items-start justify-center min-h-screen",
         notoSansJp.className
       )}
     >
@@ -36,62 +36,62 @@ export default function AdminLayout({
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <aside className="whitespace-nowrap flex flex-col justify-center bg-white h-screen">
-        <div className="mx-auto flex flex-col items-start justify-between pl-4 pr-8 py-4">
-          <h2 className="text-lg font-medium mb-4">
+      <aside className="whitespace-nowrap flex flex-col justify-center bg-white lg:h-screen">
+        <div className="mx-auto flex flex-col items-start justify-between lg:pl-4 lg:pr-8 py-4">
+          <h2 className="text-lg font-medium lg:mb-4">
             <Link href="/adm/">EMC Shop Admin</Link>
           </h2>
         </div>
-        <div className="grow flex flex-col gap-1 w-full px-2 text-sm">
+        <div className="grow flex flex-row lg:flex-col gap-1 w-full px-2 text-sm">
           <Link
             href="/adm/"
             className={twMerge(
-              "flex gap-1 items-center rounded-md w-full px-4 py-2 duration-150",
+              "flex gap-1 items-center justify-center lg:justify-start rounded-md w-full px-4 py-2 duration-150",
               url === "index" ? "bg-sky-100 text-sky-500" : "hover:bg-gray-100"
             )}
           >
             <MdOutlineDashboard size={20} />
-            <p>ダッシュボード</p>
+            <p className="hidden lg:block">ダッシュボード</p>
           </Link>
           <Link
             href="/adm/users"
             className={twMerge(
-              "flex gap-1 rounded-md w-full px-4 py-2 duration-150",
+              "flex gap-1 items-center justify-center lg:justify-start rounded-md w-full px-4 py-2 duration-150",
               url === "user" ? "bg-sky-100 text-sky-500" : "hover:bg-gray-100"
             )}
           >
             <MdPersonOutline size={20} />
-            <p>ユーザー</p>
+            <p className="hidden lg:block">ユーザー</p>
           </Link>
           <Link
             href="/adm/items"
             className={twMerge(
-              "flex gap-1 rounded-md w-full px-4 py-2 duration-150",
+              "flex gap-1 items-center justify-center lg:justify-start rounded-md w-full px-4 py-2 duration-150",
               url === "item" ? "bg-sky-100 text-sky-500" : "hover:bg-gray-100"
             )}
           >
             <MdOutlineAlbum size={20} />
-            <p>商品</p>
+            <p className="hidden lg:block">商品</p>
           </Link>
           <Link
             href="/adm/orders"
             className={twMerge(
-              "flex gap-1 rounded-md w-full px-4 py-2 duration-150",
+              "flex gap-1 items-center justify-center lg:justify-start rounded-md w-full px-4 py-2 duration-150",
               url === "order" ? "bg-sky-100 text-sky-500" : "hover:bg-gray-100"
             )}
           >
             <MdOutlinePayments size={20} />
-            <p>注文</p>
+            <p className="hidden lg:block">注文</p>
           </Link>
           <Link
             href="/adm/reports"
             className={twMerge(
-              "flex gap-1 rounded-md w-full px-4 py-2 duration-150",
+              "flex gap-1 items-center justify-center lg:justify-start rounded-md w-full px-4 py-2 duration-150",
               url === "report" ? "bg-sky-100 text-sky-500" : "hover:bg-gray-100"
             )}
           >
             <MdOutlineFlag size={20} />
-            <p>通報</p>
+            <p className="hidden lg:block">通報</p>
           </Link>
         </div>
       </aside>

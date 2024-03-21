@@ -26,7 +26,7 @@ export default function AdminPage({
     <AdminLayout url="index">
       <NextHeadSeo title="EMC Shop Admin" />
       <h2 className="text-2xl font-bold">管理画面</h2>
-      <div className="my-8 flex gap-4">
+      <div className="my-8 flex md:flex-row flex-col gap-4">
         <AdminCard title="バージョン情報">
           <p>最新：{latestVersion}</p>
           <p>現在：{version}</p>
