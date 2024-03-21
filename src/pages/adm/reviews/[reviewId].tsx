@@ -35,7 +35,7 @@ export default function AdminReports({ review }: { review: Review }) {
     setValue("createdAt", review.createdAt);
   });
   return (
-    <AdminLayout url="report">
+    <AdminLayout url="review">
       <NextHeadSeo title={`${review.id} - レビュー - EMC Shop Admin`} />
       <h2 className="text-2xl font-bold">レビュー - {review.id}</h2>
       <form className="w-full max-w-xl my-2">

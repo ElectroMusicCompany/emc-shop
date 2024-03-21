@@ -48,7 +48,7 @@ export default function AdminItems({ reviews }: { reviews: Review[] }) {
     getPaginationRowModel: getPaginationRowModel(),
   });
   return (
-    <AdminLayout url="report">
+    <AdminLayout url="review">
       <NextHeadSeo title="レビュー - EMC Shop Admin" />
       <h2 className="text-2xl font-bold">レビュー</h2>
       <div className="overflow-x-scroll">
