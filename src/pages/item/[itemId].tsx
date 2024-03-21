@@ -83,7 +83,7 @@ export default function ItemPage({
       />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="flex-col flex lg:flex-row gap-2">
-          <div className="order-last lg:order-first grid grid-cols-4 gap-2 lg:gap-0 lg:w-20 lg:h-full lg:flex lg:flex-col">
+          <div className="order-last lg:order-first grid grid-cols-4 md:grid-cols-6 gap-2 lg:gap-0 lg:w-20 lg:h-full lg:flex lg:flex-col">
             {item.images.map((img, i) => (
               <button
                 key={img.id}
