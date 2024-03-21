@@ -73,6 +73,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     take: 24 * page,
     skip: 24 * (page - 1),
   });
+  if (!items) {
+    return {
+      notFound: true,
+    };
+  }
   return {
     props: {
       items: JSON.parse(JSON.stringify(items)),
