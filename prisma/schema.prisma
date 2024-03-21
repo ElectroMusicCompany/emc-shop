@@ -19,6 +19,7 @@ model User {
   description String?
   avatar      String?
   stripeId    String?
+  points      Int        @default(0)
   admin       Boolean    @default(false)
   suspended   Boolean    @default(false)
   createdAt   DateTime   @default(now())
@@ -66,6 +67,7 @@ model Item {
   state       String
   shipping    String
   stripe      Boolean    @default(false)
+  points      Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   userId      String

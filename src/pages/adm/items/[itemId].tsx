@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 export default function AdminItems({ item }: { item: Item }) {
   const { register, handleSubmit, watch, setValue } = useForm<Item>();
   const router = useRouter();
-  const onSubmit: SubmitHandler<Item> = async (data) => {
+  const deleteItem = async () => {
     const loading = toast.loading("削除中...");
     const res = await fetch("/api/admin/delete", {
       method: "POST",
@@ -195,16 +195,18 @@ export default function AdminItems({ item }: { item: Item }) {
             />
           </div>
         </div>
+      </form>
+      <div className="flex items-center gap-2">
         <button
           className={twMerge(
             "bg-red-500 text-white py-2 px-4 rounded-md duration-150 hover:bg-red-600",
             "disabled:bg-gray-300 disabled:text-gray-500"
           )}
-          onClick={handleSubmit(onSubmit)}
+          onClick={deleteItem}
         >
           削除する
         </button>
-      </form>
+      </div>
     </AdminLayout>
   );
 }

@@ -7,6 +7,7 @@ import { signIn, useSession } from "next-auth/react";
 import { Transition, Menu } from "@headlessui/react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
+import { MdOutlineSearch } from "react-icons/md";
 
 const notoSansJp = Noto_Sans_JP({ subsets: ["latin"] });
 
@@ -28,7 +29,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <h2 className="text-lg font-medium">
             <Link href="/">EMC Shop</Link>
           </h2>
-
+          <div className="relative hidden md:block">
+            <input
+              type="text"
+              className="bg-gray-100 border border-gray-400 focus:ring-sky-500 focus:border-sky-500 rounded-md md:w-32 lg:w-64 duration-200 md:focus:w-64 lg:focus:w-96"
+              placeholder="検索（見た目だけ）"
+            />
+            <MdOutlineSearch
+              size={24}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+            />
+          </div>
           <div className="relative flex items-center space-x-4">
             {session ? (
               <>

@@ -43,7 +43,6 @@ export default function AdminOrders({ orders }: { orders: Order[] }) {
     data: orders,
     getCoreRowModel: getCoreRowModel<Order>(),
     getPaginationRowModel: getPaginationRowModel(),
-    debugTable: true,
   });
   return (
     <AdminLayout url="order">
@@ -170,7 +169,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const page = ctx.query.page ? Number(ctx.query.page) : 1;
   const orders = await db.order.findMany({
     orderBy: {
-      id: "asc",
+      id: "desc",
     },
     take: 24 * page,
     skip: 24 * (page - 1),

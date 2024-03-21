@@ -6,6 +6,7 @@ import type { Prisma } from "@prisma/client";
 import Layout from "@/components/Layout";
 import { GoHeart, GoHeartFill } from "react-icons/go";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import { GrFlag } from "react-icons/gr";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useSession } from "next-auth/react";
@@ -177,7 +178,7 @@ export default function ItemPage({
             <span className="text-2xl">{item.price.toLocaleString()}</span>
           </p>
           {session && (
-            <div className="py-4">
+            <div className="py-4 flex gap-1 items-center">
               <button
                 className="flex flex-col items-center rounded-md p-2 duration-150 hover:bg-gray-100"
                 onClick={async () => {
@@ -201,6 +202,13 @@ export default function ItemPage({
                     : "お気に入り"}
                 </span>
               </button>
+              <Link
+                className="flex flex-col items-center rounded-md py-2 px-6 duration-150 hover:bg-gray-100"
+                href={`/report?itemId=${item.id}`}
+              >
+                <GrFlag size={20} />
+                <span className="text-xs mt-0.5">通報</span>
+              </Link>
             </div>
           )}
           {session && (

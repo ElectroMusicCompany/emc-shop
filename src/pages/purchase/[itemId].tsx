@@ -11,6 +11,7 @@ import { useState } from "react";
 import AddressModal from "@/components/AddressModal";
 import NextHeadSeo from "next-head-seo";
 import { getItemImage } from "@/utils/images";
+import toast from "react-hot-toast";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   select: {
@@ -18,6 +19,7 @@ type ItemWithImages = Prisma.ItemGetPayload<{
     price: true;
     name: true;
     stripe: true;
+    points: true;
     images: true;
     user: {
       select: {
@@ -31,6 +33,7 @@ type UserWithAddress = Prisma.UserGetPayload<{
   select: {
     id: true;
     address: true;
+    points: true;
   };
 }>;
 
@@ -212,17 +215,51 @@ export default function Purchase({
             className="w-full bg-sky-500 text-white py-2 rounded-md mt-4 duration-150 hover:bg-sky-600 disabled:bg-gray-400"
             disabled={!selectedAddress}
             onClick={async () => {
+              const loading = toast.loading("購入中...");
+              const red = await (
+                await fetch(
+                  `/api/item/purchasePoint?itemId=${item.id}&buyerId=${user.id}&addressId=${selectedAddress}`
+                )
+              ).json();
+              if (red.status === "success") {
+                toast.success("処理完了", {
+                  id: loading,
+                });
+                window.location.href = red.redirect;
+              } else {
+                toast.error("エラーが発生しました", {
+                  id: loading,
+                });
+              }
+            }}
+          >
+            {item.points && user.points >= item.price
+              ? "EMC Pointで購入する"
+              : "差額をEMC Pointで払う"}
+          </button>
+          <button
+            className="w-full bg-sky-500 text-white py-2 rounded-md mt-4 duration-150 hover:bg-sky-600 disabled:bg-gray-400"
+            disabled={!selectedAddress}
+            onClick={async () => {
+              const loading = toast.loading("購入中...");
               const red = await (
                 await fetch(
                   `/api/item/purchase?itemId=${item.id}&buyerId=${user.id}&addressId=${selectedAddress}`
                 )
               ).json();
               if (red.status === "success") {
+                toast.success("処理完了", {
+                  id: loading,
+                });
                 window.location.href = red.redirect;
+              } else {
+                toast.error("エラーが発生しました", {
+                  id: loading,
+                });
               }
             }}
           >
-            購入を確定する
+            {!item.stripe ? "Stripeで購入する" : "購入者に連絡する"}
           </button>
         </div>
       </div>
@@ -240,7 +277,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
       select: {
         id: true,
+        name: true,
         images: true,
+        points: true,
+        price: true,
+        order: {
+          select: {
+            id: true,
+          },
+        },
         user: {
           select: {
             id: true,
@@ -255,16 +300,33 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       select: {
         id: true,
         address: true,
+        points: true,
       },
     });
-    if (user?.id === item?.user.id) {
+    if (!item) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+    if (item.order) {
+      return {
+        redirect: {
+          destination: `/item/${item.id}`,
+          permanent: false,
+        },
+      };
+    }
+    /*if (user?.id === item?.user.id) {
       return {
         redirect: {
           destination: `/item/${item?.id}`,
           permanent: false,
         },
       };
-    }
+    }*/
     return {
       props: {
         item: JSON.parse(JSON.stringify(item)),

@@ -154,7 +154,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const page = ctx.query.page ? Number(ctx.query.page) : 1;
   const items = await db.item.findMany({
     orderBy: {
-      id: "asc",
+      id: "desc",
     },
     include: {
       order: true,

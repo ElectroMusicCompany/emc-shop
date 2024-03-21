@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth/next";
 import { format } from "date-fns";
+import { twMerge } from "tailwind-merge";
 
 type Order = Prisma.OrderGetPayload<{
   include: {
@@ -17,11 +18,25 @@ type Order = Prisma.OrderGetPayload<{
 
 export default function AdminItems({ order }: { order: Order }) {
   const { register, handleSubmit, watch, setValue } = useForm<Order>();
-  const onSubmit: SubmitHandler<Order> = async (data) => {};
   useEffect(() => {
     setValue("userId", order.userId);
     setValue("itemId", order.itemId);
   }, []);
+  const deleteOrder = async () => {
+    const res = await fetch("/api/admin/delete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        orderId: order.id,
+      }),
+    });
+    const d = await res.json();
+    if (d.status === "success") {
+      window.location.href = "/adm/orders";
+    }
+  };
   return (
     <AdminLayout url="order">
       <NextHeadSeo title={`${order.id} - 注文 - EMC Shop Admin`} />
@@ -198,6 +213,17 @@ export default function AdminItems({ order }: { order: Order }) {
           </div>
         </div>
       </form>
+      <div className="flex items-center gap-2">
+        <button
+          className={twMerge(
+            "bg-red-500 text-white py-2 px-4 rounded-md duration-150 hover:bg-red-600",
+            "disabled:bg-gray-300 disabled:text-gray-500"
+          )}
+          onClick={deleteOrder}
+        >
+          削除する
+        </button>
+      </div>
     </AdminLayout>
   );
 }

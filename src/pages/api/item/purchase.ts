@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ status: "error", error: "Item not found" });
     }
     if (!item.stripe) {
-      const session = await stripe.checkout.sessions.create({
+      const stripeSession = await stripe.checkout.sessions.create({
         line_items: [
           {
             price_data: {
@@ -66,8 +66,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         locale: "ja",
         mode: "payment",
-        success_url: `https://emc.wmsci.com/api/item/callback?itemId=${itemId}&buyerId=${buyerId}&addressId=${addressId}&sessionId={CHECKOUT_SESSION_ID}`,
-        cancel_url: `https://emc.wmsci.com/purchase/${itemId}?canceled=true`,
+        success_url: `https://shop.emcmusic.net/api/item/callback?itemId=${itemId}&buyerId=${buyerId}&addressId=${addressId}&sessionId={CHECKOUT_SESSION_ID}`,
+        cancel_url: `https://shop.emcmusic.net/purchase/${itemId}?canceled=true`,
       });
       return res.status(303).json({ status: "success", redirect: session.url || "" });
     } else {

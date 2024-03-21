@@ -24,6 +24,7 @@ export default function AdminItems({ user }: { user: User }) {
         admin: data.admin,
         stripeId: data.stripeId,
         userId: user.id,
+        points: Number(data.points),
       }),
     });
     const d = await res.json();
@@ -86,6 +87,7 @@ export default function AdminItems({ user }: { user: User }) {
     setValue("description", user.description);
     setValue("stripeId", user.stripeId);
     setValue("admin", user.admin);
+    setValue("points", user.points);
   }, []);
   return (
     <AdminLayout url="user">
@@ -149,19 +151,33 @@ export default function AdminItems({ user }: { user: User }) {
           <div className="w-full px-3 mb-6 md:mb-0">
             <label
               className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
+              htmlFor="points"
+            >
+              ポイント
+            </label>
+            <input
+              className="appearance-none block w-full bg-white text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="points"
+              type="number"
+              placeholder="0"
+              {...register("points")}
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap -mx-3 mb-3">
+          <div className="w-full px-3 mb-6 md:mb-0">
+            <label
+              className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
               htmlFor="admin"
             >
               管理者
             </label>
-            <select
-              className="appearance-none block w-full bg-white text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+            <input
               id="admin"
-              defaultValue="false"
+              type="checkbox"
               {...register("admin")}
-            >
-              <option value="true">管理者</option>
-              <option value="false">ユーザー</option>
-            </select>
+              className="text-sky-500 focus:ring-sky-500 rounded mb-4"
+            />
           </div>
         </div>
       </form>

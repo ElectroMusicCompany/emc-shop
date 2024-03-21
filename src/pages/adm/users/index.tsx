@@ -29,6 +29,10 @@ export default function AdminItems({ users }: { users: User[] }) {
       accessorKey: "stripeId",
     },
     {
+      header: "ポイント",
+      accessorKey: "points",
+    },
+    {
       header: "管理者",
       accessorKey: "admin",
     },
@@ -152,7 +156,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   const users = await db.user.findMany({
     orderBy: {
-      id: "asc",
+      id: "desc",
     },
     take: 24 * page,
     skip: 24 * (page - 1),

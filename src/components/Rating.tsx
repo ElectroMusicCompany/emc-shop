@@ -34,7 +34,7 @@ export default function Rating({
             value="1"
             defaultChecked
             onChange={() => setRating(1)}
-            className="text-sky-500 focus:ring-sky-500"
+            className="text-red-500 focus:ring-red-500"
           />
         </label>
         <label
@@ -52,7 +52,7 @@ export default function Rating({
             id="bad"
             value="0"
             onChange={() => setRating(0)}
-            className="text-sky-500 focus:ring-sky-500"
+            className="text-blue-500 focus:ring-blue-500"
           />
         </label>
       </div>

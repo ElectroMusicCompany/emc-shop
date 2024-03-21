@@ -23,6 +23,7 @@ type Inputs = {
   shipping: string;
   shipping_other?: string;
   stripe: boolean;
+  points: boolean;
   price: number;
 };
 
@@ -410,6 +411,18 @@ export default function Sell({
               </div>
             )}
             <div className="flex flex-col mb-4">
+              <div className="flex justify-between items-center mb-1">
+                <label htmlFor="points">ポイント払いを許可する</label>
+                <input
+                  id="points"
+                  type="checkbox"
+                  defaultValue="false"
+                  className="focus:ring-sky-500 rounded text-sky-500"
+                  {...register("points", {
+                    required: false,
+                  })}
+                />
+              </div>
               <div className="flex justify-between items-center mb-1">
                 <label htmlFor="stripe">Stripeを利用しない</label>
                 <input

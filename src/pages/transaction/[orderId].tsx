@@ -241,6 +241,12 @@ export default function Transaction({
             </table>
           </div>
           <hr />
+          <Link
+            className="block text-center mt-4 border-red-500 border text-red-500 rounded-md px-4 py-2 duration-150 hover:bg-red-100 w-full"
+            href={`/report?orderId=${order.id}&type=order`}
+          >
+            取引を報告する
+          </Link>
         </div>
         <div className="lg:col-span-2 text-left">
           <h3 className="text-xl font-bold py-2 mb-2">取引画面</h3>
@@ -389,7 +395,7 @@ export default function Transaction({
                       value={tracking}
                       onChange={(e) => setTracking(e.target.value)}
                       type="text"
-                      className="grow border rounded-l-md p-2 focus:ring-sky-500"
+                      className="grow border rounded-l-md p-2 focus:ring-sky-500 focus:border-sky-500"
                       placeholder="XXXX-XXXX-XXXX"
                     />
                     <button

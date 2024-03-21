@@ -68,6 +68,13 @@ export default function MyPage() {
           <MdOutlineKeyboardArrowRight size={24} />
         </Link>
         <Link
+          href="/mypage/points"
+          className="flex items-center justify-between border-b py-4 w-full duration-150 hover:bg-gray-100"
+        >
+          <p>EMC Point</p>
+          <MdOutlineKeyboardArrowRight size={24} />
+        </Link>
+        <Link
           href="/mypage/bank"
           className="flex items-center justify-between border-b py-4 w-full duration-150 hover:bg-gray-100"
         >
