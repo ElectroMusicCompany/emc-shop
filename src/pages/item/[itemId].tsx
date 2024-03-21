@@ -82,13 +82,13 @@ export default function ItemPage({
         }}
       />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="flex-col flex md:flex-row gap-2">
-          <div className="order-last md:order-first grid grid-cols-4 gap-2 md:w-20 md:h-full md:flex md:flex-col">
+        <div className="flex-col flex lg::flex-row gap-2">
+          <div className="order-last lg:order-first grid grid-cols-4 gap-2 lg:gap-0 lg:w-20 lg:h-full lg:flex lg:flex-col">
             {item.images.map((img, i) => (
               <button
                 key={img.id}
                 className={twMerge(
-                  "box-content relative h-full w-full aspect-square md:w-20 md:h-20 md:mb-2 overflow-hidden",
+                  "box-content relative h-full w-full aspect-square lg:w-20 lg:h-20 lg:mb-2 overflow-hidden",
                   i === image
                     ? "border-2 border-sky-500"
                     : "border-2 border-gray-200"
