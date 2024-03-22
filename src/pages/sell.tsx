@@ -1,22 +1,21 @@
 import Layout from "@/components/Layout";
-import { useSession } from "next-auth/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { MdOutlinePhotoCamera, MdOutlineClose } from "react-icons/md";
 import { useDropzone } from "react-dropzone";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import { db } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { GetServerSideProps } from "next";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { Prisma, User } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import Link from "next/link";
 import NextHeadSeo from "next-head-seo";
+import { getItemImage } from "@/utils/images";
 
 type Inputs = {
-  images: Array<File>;
   name: string;
   description?: string;
   state: string;
@@ -38,6 +37,11 @@ type Item = Prisma.ItemGetPayload<{
   };
 }>;
 
+type Thumb = {
+  id: string;
+  url: string;
+};
+
 export default function Sell({
   user,
   item,
@@ -46,6 +50,8 @@ export default function Sell({
   item?: Item;
 }) {
   const router = useRouter();
+  const [images, setImages] = useState<File[]>([]);
+  const [thumbs, setThumbs] = useState<Thumb[]>([]);
   const {
     register,
     formState: { errors, isValid, isDirty },
@@ -54,17 +60,25 @@ export default function Sell({
     setValue,
   } = useForm<Inputs>({
     mode: "onChange",
-    defaultValues: { points: true, stripe: false, images: [] },
+    defaultValues: { points: true, stripe: false },
   });
-  const { data: session } = useSession();
 
   const onDrop = useCallback(
-    (files: File[]) => {
+    async (files: File[]) => {
       if (files.length > 0) {
-        setValue("images", [...(watch("images") || []), ...files]);
+        setImages([...images, ...files]);
+        setThumbs([
+          ...thumbs,
+          ...(await Promise.all(
+            files.map(async (file) => ({
+              id: file.name,
+              url: await getBase64(file),
+            }))
+          )),
+        ]);
       }
     },
-    [setValue, watch]
+    [thumbs, images]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -76,17 +90,27 @@ export default function Sell({
     },
   });
 
+  const getBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const onSubmit: SubmitHandler<Inputs> = async (data: Inputs) => {
     const toastId = toast.loading("画像をアップロード中...");
     try {
-      if (!data.images || data.images.length === 0) {
+      if (!thumbs || thumbs.length === 0) {
         toast.error("画像を1枚以上追加してください", {
           id: toastId,
         });
         return;
       }
-      const mediaIds = [];
-      for (const file of data.images) {
+      let uploaded = [];
+      let mediaIds: string[] = [];
+      for (const file of images) {
         const formData = new FormData();
         formData.append("file", file);
         const res = await (
@@ -96,12 +120,22 @@ export default function Sell({
           })
         ).json();
         if (res.status === "success") {
-          mediaIds.push(res.imageId);
+          uploaded.push({ id: res.imageId, name: file.name });
         } else {
           throw new Error("Failed to upload image");
         }
       }
       if (item) {
+        if (item.images) {
+          mediaIds = thumbs.map((thumb) => {
+            if (thumb.url.startsWith("data:")) {
+              const img = uploaded.find((u) => u.name === thumb.id);
+              return img ? img.id : thumb.id;
+            } else {
+              return thumb.id;
+            }
+          });
+        }
         const res = await (
           await fetch(`/api/item/create`, {
             method: "POST",
@@ -207,6 +241,12 @@ export default function Sell({
       );
       setValue("stripe", item.stripe);
       setValue("price", item.price);
+      setThumbs(
+        item.images.map((img) => ({
+          id: img.id,
+          url: getItemImage(img.id, img.format),
+        }))
+      );
     }
   }, []);
 
@@ -229,25 +269,33 @@ export default function Sell({
           <h3 className="text-xl font-bold text-left py-4">出品する</h3>
           <div className="flex flex-col mb-4">
             <div className="flex mb-2">
-              {watch("images") && watch("images").length > 0 && (
+              {thumbs.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                  {Array.from(watch("images"))
+                  {Array.from(thumbs)
                     .reverse()
-                    .map((image, i) => (
+                    .map((thumb, i) => (
                       <div className="relative" key={i}>
                         <img
-                          src={URL.createObjectURL(image)}
+                          src={thumb.url}
                           alt=""
                           className="h-32 object-cover aspect-square rounded-md"
                         />
                         <button
                           type="button"
                           onClick={() => {
-                            const images = watch("images");
-                            const newImages = images.filter(
-                              (img) => img !== images[images.length - i - 1]
-                            );
-                            setValue("images", newImages);
+                            if (thumb.url.startsWith("data:")) {
+                              const newImages = images.filter(
+                                (img) => img.name !== thumbs[i].id
+                              );
+                              setImages(newImages);
+                              setThumbs(
+                                thumbs.filter((t) => t.id !== thumb.id)
+                              );
+                            } else {
+                              setThumbs(
+                                thumbs.filter((t) => t.id !== thumb.id)
+                              );
+                            }
                           }}
                           className="absolute top-1 right-1 bg-white rounded-full p-1"
                         >
@@ -258,7 +306,7 @@ export default function Sell({
                 </div>
               )}
             </div>
-            {watch("images") && watch("images").length >= 10 ? (
+            {thumbs && thumbs.length >= 10 ? (
               <p className="text-red-500">10枚まで選択できます</p>
             ) : (
               <div
@@ -463,12 +511,7 @@ export default function Sell({
           </div>
           <button
             type="submit"
-            disabled={
-              !isValid ||
-              !isDirty ||
-              !user.stripeId ||
-              watch("images").length === 0
-            }
+            disabled={!isValid || !user.stripeId || thumbs.length === 0}
             className="w-full bg-sky-500 text-white py-2 rounded-md my-4 font-medium duration-150 hover:bg-sky-600 disabled:bg-gray-400"
           >
             出品する

@@ -5,11 +5,13 @@ import { authOptions } from "../api/auth/[...nextauth]";
 import type { Prisma } from "@prisma/client";
 import Layout from "@/components/Layout";
 import { GoHeart, GoHeartFill } from "react-icons/go";
-import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import {
+  MdOutlineKeyboardArrowRight,
+  MdOutlineKeyboardArrowLeft,
+} from "react-icons/md";
 import { GrFlag } from "react-icons/gr";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Reviews from "@/components/Reviews";
@@ -102,10 +104,9 @@ export default function ItemPage({
   const [isLiked, setIsLiked] = useState(false);
   const [comment, setComment] = useState("");
   const [image, setImage] = useState(0);
-  const { data: session } = useSession();
   const router = useRouter();
   useEffect(() => {
-    if (session) {
+    if (user) {
       const isFavorite = user.favorite.find(
         (favorite) => favorite.itemId === item.id
       );
@@ -169,6 +170,28 @@ export default function ItemPage({
                 </div>
               </>
             )}
+            <button
+              className={twMerge(
+                "absolute top-1/2 -translate-y-1/2 right-2 bg-black/50 text-white rounded-full p-1.5 duration-150 hover:bg-black/80",
+                item.images.length >= image + 1 && "hidden"
+              )}
+              onClick={() => {
+                setImage((image + 1) % item.images.length);
+              }}
+            >
+              <MdOutlineKeyboardArrowRight size={24} />
+            </button>
+            <button
+              className={twMerge(
+                "absolute top-1/2 -translate-y-1/2 left-2 bg-black/50 text-white rounded-full p-1.5 duration-150 hover:bg-black/80",
+                image - 1 <= 0 && "hidden"
+              )}
+              onClick={() => {
+                setImage((image - 1 + item.images.length) % item.images.length);
+              }}
+            >
+              <MdOutlineKeyboardArrowLeft size={24} />
+            </button>
           </div>
         </div>
         <div className="text-left">
@@ -177,7 +200,7 @@ export default function ItemPage({
             <span className="text-sm">¥</span>
             <span className="text-2xl">{item.price.toLocaleString()}</span>
           </p>
-          {session && (
+          {user && (
             <div className="py-4 flex gap-1 items-center">
               <button
                 className="flex flex-col items-center rounded-md p-2 duration-150 hover:bg-gray-100"
@@ -211,7 +234,7 @@ export default function ItemPage({
               </Link>
             </div>
           )}
-          {session && (
+          {user && (
             <div className="py-4 font-medium">
               {item.order != null ? (
                 item.order.userId === user.id ? (
@@ -332,7 +355,7 @@ export default function ItemPage({
               </div>
             ))}
           </div>
-          {session && (
+          {user && (
             <div className="my-4">
               <label htmlFor="comment" className="block mb-1">
                 商品へのコメント
