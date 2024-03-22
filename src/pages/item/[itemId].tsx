@@ -173,7 +173,7 @@ export default function ItemPage({
             <button
               className={twMerge(
                 "absolute top-1/2 -translate-y-1/2 right-2 bg-black/50 text-white rounded-full p-1.5 duration-150 hover:bg-black/80",
-                item.images.length >= image + 1 && "hidden"
+                item.images.length <= image + 1 && "hidden"
               )}
               onClick={() => {
                 setImage((image + 1) % item.images.length);
@@ -184,7 +184,7 @@ export default function ItemPage({
             <button
               className={twMerge(
                 "absolute top-1/2 -translate-y-1/2 left-2 bg-black/50 text-white rounded-full p-1.5 duration-150 hover:bg-black/80",
-                image - 1 <= 0 && "hidden"
+                image - 1 < 0 && "hidden"
               )}
               onClick={() => {
                 setImage((image - 1 + item.images.length) % item.images.length);
