@@ -8,6 +8,7 @@ import ItemCard from "@/components/ItemCard";
 import { IoMdArrowBack } from "react-icons/io";
 import { useRouter } from "next/router";
 import NextHeadSeo from "next-head-seo";
+import Pagination from "@/components/Pagination";
 
 type UserWithItems = Prisma.UserGetPayload<{
   select: {
@@ -27,7 +28,15 @@ type UserWithItems = Prisma.UserGetPayload<{
   };
 }>;
 
-export default function UserPage({ user }: { user: UserWithItems }) {
+export default function UserPage({
+  user,
+  page,
+  itemsCount,
+}: {
+  user: UserWithItems;
+  page: number;
+  itemsCount: number;
+}) {
   const router = useRouter();
   return (
     <Layout>
@@ -61,6 +70,11 @@ export default function UserPage({ user }: { user: UserWithItems }) {
             />
           ))}
         </div>
+        <Pagination
+          path="/mypage/items"
+          page={page}
+          count={Math.floor(itemsCount / 24) || 1}
+        />
       </div>
     </Layout>
   );
@@ -92,9 +106,23 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         },
       },
     });
+    const itemsCount = await db.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+      select: {
+        _count: {
+          select: {
+            items: true,
+          },
+        },
+      },
+    });
     return {
       props: {
+        page,
         user: JSON.parse(JSON.stringify(user)),
+        itemsCount: itemsCount?._count.items || 0,
       },
     };
   }

@@ -13,8 +13,17 @@ import NextHeadSeo from "next-head-seo";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { Report } from "@prisma/client";
+import AdminPagination from "@/components/admin/AdminPagination";
 
-export default function AdminItems({ reports }: { reports: Report[] }) {
+export default function AdminItems({
+  page,
+  reports,
+  reportsCount,
+}: {
+  page: number;
+  reports: Report[];
+  reportsCount: number;
+}) {
   const columns = [
     {
       header: "ID",
@@ -136,6 +145,11 @@ export default function AdminItems({ reports }: { reports: Report[] }) {
             })}
           </tbody>
         </table>
+        <AdminPagination
+          count={Math.floor(reportsCount / 24) || 1}
+          page={page}
+          path="reports"
+        />
       </div>
     </AdminLayout>
   );
@@ -177,9 +191,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       notFound: true,
     };
   }
+  const reportsCount = await db.report.count();
   return {
     props: {
+      page,
       reports: JSON.parse(JSON.stringify(reports)),
+      reportsCount,
     },
   };
 };

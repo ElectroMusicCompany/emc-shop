@@ -14,8 +14,17 @@ import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { compareAsc } from "date-fns";
+import AdminPagination from "@/components/admin/AdminPagination";
 
-export default function AdminOrders({ orders }: { orders: Order[] }) {
+export default function AdminOrders({
+  page,
+  orders,
+  ordersCount,
+}: {
+  page: number;
+  orders: Order[];
+  ordersCount: number;
+}) {
   const columns = [
     {
       header: "ID",
@@ -138,6 +147,11 @@ export default function AdminOrders({ orders }: { orders: Order[] }) {
             })}
           </tbody>
         </table>
+        <AdminPagination
+          count={Math.floor(ordersCount / 24) || 1}
+          page={page}
+          path="orders"
+        />
       </div>
     </AdminLayout>
   );
@@ -179,9 +193,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       notFound: true,
     };
   }
+  const ordersCount = await db.order.count();
   return {
     props: {
+      page,
       orders: JSON.parse(JSON.stringify(orders)),
+      ordersCount,
     },
   };
 };

@@ -26,13 +26,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <header className="border-b w-full">
         <div className="mx-auto flex items-center justify-between max-w-7xl px-4 py-4">
-          <h2 className="text-lg font-medium">
+          <h2 className="text-lg font-medium hidden md:block">
             <Link href="/">EMC Shop</Link>
           </h2>
-          <div className="relative hidden md:block">
+          <div className="grow relative mr-4 max-w-lg md:mx-4">
             <input
               type="text"
-              className="bg-gray-100 border border-gray-400 focus:ring-sky-500 focus:border-sky-500 rounded-md md:w-32 lg:w-64 duration-200 md:focus:w-64 lg:focus:w-96"
+              className="bg-gray-100 border border-gray-400 focus:ring-sky-500 focus:border-sky-500 rounded-md w-full"
               placeholder="検索（見た目だけ）"
             />
             <MdOutlineSearch

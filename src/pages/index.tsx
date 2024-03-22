@@ -4,6 +4,7 @@ import { GetServerSideProps } from "next";
 import { db } from "@/lib/prisma";
 import NextHeadSeo from "next-head-seo";
 import { Prisma } from "@prisma/client";
+import Pagination from "@/components/Pagination";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   select: {
@@ -19,7 +20,15 @@ type ItemWithImages = Prisma.ItemGetPayload<{
   };
 }>;
 
-export default function Home({ items }: { items: ItemWithImages[] }) {
+export default function Home({
+  items,
+  page,
+  itemsCount,
+}: {
+  items: ItemWithImages[];
+  page: number;
+  itemsCount: number;
+}) {
   return (
     <Layout>
       <NextHeadSeo
@@ -49,6 +58,11 @@ export default function Home({ items }: { items: ItemWithImages[] }) {
           <p>出品がありません</p>
         )}
       </div>
+      <Pagination
+        path=""
+        page={page}
+        count={Math.floor(itemsCount / 24) || 1}
+      />
     </Layout>
   );
 }
@@ -73,6 +87,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     take: 24 * page,
     skip: 24 * (page - 1),
   });
+  const itemsCount = await db.item.count();
   if (!items) {
     return {
       notFound: true,
@@ -80,7 +95,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   return {
     props: {
+      page,
       items: JSON.parse(JSON.stringify(items)),
+      itemsCount,
     },
   };
 };

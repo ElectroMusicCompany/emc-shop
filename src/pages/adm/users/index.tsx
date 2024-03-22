@@ -13,8 +13,17 @@ import { twMerge } from "tailwind-merge";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import AdminPagination from "@/components/admin/AdminPagination";
 
-export default function AdminItems({ users }: { users: User[] }) {
+export default function AdminItems({
+  page,
+  users,
+  usersCount,
+}: {
+  page: number;
+  users: User[];
+  usersCount: number;
+}) {
   const columns = [
     {
       header: "ID",
@@ -125,6 +134,11 @@ export default function AdminItems({ users }: { users: User[] }) {
             })}
           </tbody>
         </table>
+        <AdminPagination
+          count={Math.floor(usersCount / 24) || 1}
+          page={page}
+          path="users"
+        />
       </div>
     </AdminLayout>
   );
@@ -161,6 +175,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     take: 24 * page,
     skip: 24 * (page - 1),
   });
+  const usersCount = await db.user.count();
   if (!users) {
     return {
       notFound: true,
@@ -168,6 +183,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   return {
     props: {
+      page,
+      usersCount,
       users: JSON.parse(JSON.stringify(users)),
     },
   };

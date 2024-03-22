@@ -14,8 +14,17 @@ import Link from "next/link";
 import { access } from "fs";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import AdminPagination from "@/components/admin/AdminPagination";
 
-export default function AdminItems({ items }: { items: Item[] }) {
+export default function AdminItems({
+  page,
+  items,
+  itemsCount,
+}: {
+  page: number;
+  items: Item[];
+  itemsCount: number;
+}) {
   const columns = [
     {
       header: "ID",
@@ -123,6 +132,11 @@ export default function AdminItems({ items }: { items: Item[] }) {
             })}
           </tbody>
         </table>
+        <AdminPagination
+          count={Math.floor(itemsCount / 24) || 1}
+          page={page}
+          path="users"
+        />
       </div>
     </AdminLayout>
   );
@@ -167,9 +181,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       notFound: true,
     };
   }
+  const itemsCount = await db.item.count();
   return {
     props: {
+      page,
       items: JSON.parse(JSON.stringify(items)),
+      itemsCount,
     },
   };
 };

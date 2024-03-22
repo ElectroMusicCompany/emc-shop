@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/admin/AdminLayout";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { db } from "@/lib/prisma";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { Review } from "@prisma/client";
@@ -14,7 +15,15 @@ import NextHeadSeo from "next-head-seo";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 
-export default function AdminItems({ reviews }: { reviews: Review[] }) {
+export default function AdminItems({
+  page,
+  reviews,
+  reviewsCount,
+}: {
+  page: number;
+  reviews: Review[];
+  reviewsCount: number;
+}) {
   const columns = [
     {
       header: "ID",
@@ -142,6 +151,11 @@ export default function AdminItems({ reviews }: { reviews: Review[] }) {
             })}
           </tbody>
         </table>
+        <AdminPagination
+          count={Math.floor(reviewsCount / 24) || 1}
+          page={page}
+          path="reviews"
+        />
       </div>
     </AdminLayout>
   );
@@ -183,9 +197,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       notFound: true,
     };
   }
+  const reviewsCount = await db.review.count();
   return {
     props: {
+      page,
       reviews: JSON.parse(JSON.stringify(reviews)),
+      reviewsCount,
     },
   };
 };

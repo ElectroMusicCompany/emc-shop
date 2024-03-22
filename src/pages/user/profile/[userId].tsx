@@ -11,6 +11,7 @@ import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import NextHeadSeo from "next-head-seo";
 import { getAvatar } from "@/utils/images";
+import Pagination from "@/components/Pagination";
 
 type UserWithItems = Prisma.UserGetPayload<{
   select: {
@@ -42,9 +43,13 @@ type UserWithItems = Prisma.UserGetPayload<{
 
 export default function UserPage({
   user,
+  page,
+  itemsCount,
   sessionUserId,
 }: {
+  page: number;
   user: UserWithItems;
+  itemsCount: number;
   sessionUserId: string;
 }) {
   return (
@@ -118,6 +123,11 @@ export default function UserPage({
           />
         ))}
       </div>
+      <Pagination
+        path={`/user/profile/${user.id}`}
+        page={page}
+        count={Math.floor(itemsCount / 24) || 1}
+      />
     </Layout>
   );
 }
@@ -157,17 +167,33 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     },
   });
+  const itemsCount = await db.user.findUnique({
+    where: {
+      id: ctx.query.userId?.toString(),
+    },
+    select: {
+      _count: {
+        select: {
+          items: true,
+        },
+      },
+    },
+  });
   if (session) {
     return {
       props: {
+        page,
         user: JSON.parse(JSON.stringify(user)),
+        itemsCount: itemsCount?._count.items || 0,
         sessionUserId: session.user.id,
       },
     };
   } else {
     return {
       props: {
+        page,
         user: JSON.parse(JSON.stringify(user)),
+        itemsCount: itemsCount?._count.items || 0,
         sessionUserId: null,
       },
     };
