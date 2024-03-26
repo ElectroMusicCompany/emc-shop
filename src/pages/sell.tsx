@@ -165,6 +165,7 @@ export default function Sell({
         });
         router.push(`/item/${res.itemId}`);
       } else {
+        const mediaIds = uploaded.map((img) => img.id);
         const res = await (
           await fetch(`/api/item/create`, {
             method: "POST",
