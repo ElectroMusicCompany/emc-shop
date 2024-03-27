@@ -422,6 +422,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       description: true,
       state: true,
       shipping: true,
+      deliveryDays: true,
       stripe: true,
       createdAt: true,
       images: true,

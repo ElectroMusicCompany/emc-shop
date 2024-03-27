@@ -561,6 +561,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             name: true,
             price: true,
             shipping: true,
+            deliveryDays: true,
             images: {
               select: {
                 id: true,
