@@ -243,7 +243,7 @@ export default function Sell({
       setValue("stripe", item.stripe);
       setValue("price", item.price);
       setThumbs(
-        item.images.map((img) => ({
+        item.images.reverse().map((img) => ({
           id: img.id,
           url: getItemImage(img.id, img.format),
         }))

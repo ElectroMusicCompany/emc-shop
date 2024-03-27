@@ -7,7 +7,7 @@ import { signIn, useSession } from "next-auth/react";
 import { Transition, Menu } from "@headlessui/react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
-import { MdOutlineSearch } from "react-icons/md";
+import { MdOutlineSearch, MdOutlineFileUpload } from "react-icons/md";
 
 const notoSansJp = Noto_Sans_JP({ subsets: ["latin"] });
 
@@ -28,6 +28,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex items-center justify-between max-w-7xl px-4 py-4">
           <h2 className="text-lg font-medium hidden md:block">
             <Link href="/">EMC Shop</Link>
+          </h2>
+          <h2 className="text-lg font-medium block md:hidden mr-4">
+            <Link href="/">EMC</Link>
           </h2>
           <div className="grow relative mr-4 max-w-lg md:mx-4">
             <input
@@ -62,7 +65,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="z-50 absolute right-16 top-8 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                    <Menu.Items className="z-50 absolute right-4 md:right-16 top-8 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                       <div className="p-1">
                         <Menu.Item>
                           {({ active }) => (
@@ -109,7 +112,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Menu>
                 <Link
                   href="/sell"
-                  className="bg-sky-500 font-medium text-white px-4 py-1.5 text-sm rounded-md duration-150 hover:opacity-80"
+                  className="bg-sky-500 font-medium text-white px-4 py-1.5 text-sm rounded-md duration-150 hover:opacity-80 hidden md:block"
                 >
                   出品
                 </Link>
@@ -125,6 +128,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Toaster position="bottom-right" />
+
+      {session && (
+        <div className="fixed bottom-8 right-6 block md:hidden">
+          <Link
+            href="/sell"
+            className="bg-sky-500 text-white p-3 rounded-full flex items-center justify-center font-medium shadow"
+          >
+            <MdOutlineFileUpload size={32} />
+          </Link>
+        </div>
+      )}
 
       <footer className="border-t w-full">
         <div className="mx-auto flex items-start justify-between max-w-7xl px-4 py-4">
