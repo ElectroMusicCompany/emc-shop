@@ -45,6 +45,7 @@ export default function AdminItems({ item }: { item: Item }) {
     setValue("state", item.state);
     setValue("shipping", item.shipping);
     setValue("userId", item.userId);
+    setValue("deliveryDays", item.deliveryDays);
   }, []);
   return (
     <AdminLayout url="item">
@@ -109,7 +110,7 @@ export default function AdminItems({ item }: { item: Item }) {
           <div className="w-full px-3 mb-6 md:mb-0">
             <label
               className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
-              htmlFor="description"
+              htmlFor="state"
             >
               商品の状態
             </label>
@@ -127,7 +128,7 @@ export default function AdminItems({ item }: { item: Item }) {
           <div className="w-full px-3 mb-6 md:mb-0">
             <label
               className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
-              htmlFor="description"
+              htmlFor="shipping"
             >
               配送方法
             </label>
@@ -138,6 +139,24 @@ export default function AdminItems({ item }: { item: Item }) {
               placeholder="shipping"
               disabled
               {...register("shipping")}
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap -mx-3 mb-3">
+          <div className="w-full px-3 mb-6 md:mb-0">
+            <label
+              className="block tracking-wide text-gray-700 text-lg font-bold mb-2"
+              htmlFor="deliveryDays"
+            >
+              発送までの日数
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="deliveryDays"
+              type="text"
+              placeholder="deliveryDays"
+              disabled
+              {...register("deliveryDays")}
             />
           </div>
         </div>

@@ -21,6 +21,7 @@ type Inputs = {
   state: string;
   shipping: string;
   shipping_other?: string;
+  deliveryDays: string;
   stripe: boolean;
   points: boolean;
   price: number;
@@ -54,13 +55,13 @@ export default function Sell({
   const [thumbs, setThumbs] = useState<Thumb[]>([]);
   const {
     register,
-    formState: { errors, isValid, isDirty },
+    formState: { errors, isValid },
     watch,
     handleSubmit,
     setValue,
   } = useForm<Inputs>({
     mode: "onChange",
-    defaultValues: { points: true, stripe: false },
+    defaultValues: { points: true, stripe: false, deliveryDays: "1-2" },
   });
 
   const onDrop = useCallback(
@@ -81,7 +82,7 @@ export default function Sell({
     [thumbs, images]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
       "image/png": [".png"],
@@ -226,7 +227,6 @@ export default function Sell({
     "傷や汚れあり",
     "全体的に状態が悪い",
   ];
-
   useEffect(() => {
     if (item) {
       setValue("name", item.name);
@@ -248,6 +248,7 @@ export default function Sell({
           url: getItemImage(img.id, img.format),
         }))
       );
+      setValue("deliveryDays", item.deliveryDays);
     }
   }, []);
 
@@ -355,12 +356,11 @@ export default function Sell({
               )}
               aria-invalid={errors.state ? "true" : "false"}
             >
-              <option value="新品・未開封">新品・未開封</option>
-              <option value="未使用に近い">未使用に近い</option>
-              <option value="目立った傷や汚れなし">目立った傷や汚れなし</option>
-              <option value="やや傷や汚れあり">やや傷や汚れあり</option>
-              <option value="傷や汚れあり">傷や汚れあり</option>
-              <option value="全体的に状態が悪い">全体的に状態が悪い</option>
+              {state.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
           </div>
           <div className="flex flex-col mb-4">
@@ -377,6 +377,28 @@ export default function Sell({
                 maxLength: 1000,
               })}
             />
+          </div>
+          <div className="flex flex-col mb-4">
+            <label htmlFor="deliveryDays">
+              発送までの日数<span className="text-red-500">*</span>
+            </label>
+            <select
+              id="deliveryDays"
+              {...register("deliveryDays", {
+                required: true,
+              })}
+              className={twMerge(
+                "border rounded-md",
+                errors.deliveryDays
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                  : "focus:border-sky-500 focus:ring-sky-500"
+              )}
+              aria-invalid={errors.deliveryDays ? "true" : "false"}
+            >
+              <option value="1-2">1-2日で発送</option>
+              <option value="2-3">2-3日で発送</option>
+              <option value="4-7">4-7日で発送</option>
+            </select>
           </div>
           <div className="flex flex-col mb-4">
             <label htmlFor="shipping">

@@ -32,6 +32,7 @@ type ItemWithImages = Prisma.ItemGetPayload<{
     description: true;
     state: true;
     shipping: true;
+    deliveryDays: true;
     stripe: true;
     createdAt: true;
     images: true;
@@ -296,6 +297,10 @@ export default function ItemPage({
               <tr>
                 <td className="font-semibold py-2">配送の方法</td>
                 <td>{item.shipping}</td>
+              </tr>
+              <tr>
+                <td className="font-semibold py-2">発送までの日数</td>
+                <td>{item.deliveryDays}日で発送</td>
               </tr>
               <tr>
                 <td className="font-semibold py-2">支払い方法</td>

@@ -36,6 +36,7 @@ type Order = Prisma.OrderGetPayload<{
         name: true;
         price: true;
         shipping: true;
+        deliveryDays: true;
         images: {
           select: {
             id: true;
@@ -222,6 +223,10 @@ export default function Transaction({
                 <tr>
                   <td className="font-semibold py-2">配送方法</td>
                   <td>{order.item.shipping}</td>
+                </tr>
+                <tr>
+                  <td className="font-semibold py-2">発送までの日数</td>
+                  <td>{order.item.deliveryDays}日で発送</td>
                 </tr>
                 <tr>
                   <td className="font-semibold py-2">購入日時</td>
