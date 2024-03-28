@@ -92,14 +92,14 @@ export default function Search({
       <NextHeadSeo
         title={
           router.query.keyword
-            ? `${router.query.keyword}の検索結果`
+            ? `${router.query.keyword}の検索結果 - EMC Shop`
             : "検索 - EMC Shop"
         }
         description="商品を検索しましょう"
         canonical="https://shop.emcmusic.net/search"
         og={{
           title: router.query.keyword
-            ? `${router.query.keyword}の検索結果`
+            ? `${router.query.keyword}の検索結果 - EMC Shop`
             : "検索 - EMC Shop",
           image: "https://shop.emcmusic.net/ogp.png",
         }}
