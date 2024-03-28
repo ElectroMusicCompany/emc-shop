@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { twMerge } from "tailwind-merge";
+import Pagination from "@/components/Pagination";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   select: {
@@ -30,7 +31,15 @@ type sortType = {
   };
 };
 
-export default function Search({ items }: { items: ItemWithImages[] }) {
+export default function Search({
+  items,
+  page,
+  itemsCount,
+}: {
+  items: ItemWithImages[];
+  page: number;
+  itemsCount: number;
+}) {
   const router = useRouter();
   const [onsale, setOnsale] = useState(false);
   const [sortState, setSortState] = useState("new");
@@ -353,6 +362,11 @@ export default function Search({ items }: { items: ItemWithImages[] }) {
               <p>出品がありません</p>
             )}
           </div>
+          <Pagination
+            path=""
+            page={page}
+            count={Math.floor(itemsCount / 24) || 1}
+          />
         </div>
       </div>
     </Layout>
@@ -368,6 +382,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     item_condition_id,
     sort,
     order = "desc",
+    page = 1,
   } = ctx.query;
   const wh: Prisma.ItemWhereInput = {
     name: {
@@ -429,11 +444,23 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     },
     orderBy: or,
     where: wh,
+    take: 24 * Number(page),
+    skip: 24 * (Number(page) - 1),
   });
+  const itemsCount = await db.item.count({
+    where: wh,
+  });
+  if (!items) {
+    return {
+      notFound: true,
+    };
+  }
 
   return {
     props: {
+      page,
       items: JSON.parse(JSON.stringify(items)),
+      itemsCount,
     },
   };
 };
