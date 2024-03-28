@@ -153,6 +153,7 @@ export default function Sell({
                   ? data.shipping_other
                   : data.shipping,
               stripe: data.stripe,
+              points: data.points,
               price: data.price,
               itemId: item.id,
             }),
@@ -183,6 +184,7 @@ export default function Sell({
                   ? data.shipping_other
                   : data.shipping,
               stripe: data.stripe,
+              points: data.points,
               price: data.price,
             }),
           })
@@ -241,6 +243,7 @@ export default function Sell({
         shipping.includes(item.shipping) ? "" : item.shipping
       );
       setValue("stripe", item.stripe);
+      setValue("points", item.points);
       setValue("price", item.price);
       setThumbs(
         item.images.reverse().map((img) => ({
