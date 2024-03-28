@@ -473,7 +473,7 @@ export default function Sell({
               />
             </div>
           </div>
-          {!user.stripeId && (
+          {!user.stripeId && !watch("stripe") && (
             <div className="bg-red-200 border border-red-500 text-red-700 rounded-md mb-4 text-center">
               <div className="max-w-3xl mx-auto p-4">
                 <p className="text-sm">
@@ -537,7 +537,11 @@ export default function Sell({
           </div>
           <button
             type="submit"
-            disabled={!isValid || !user.stripeId || thumbs.length === 0}
+            disabled={
+              !isValid ||
+              (!user.stripeId && !watch("stripe")) ||
+              thumbs.length === 0
+            }
             className="w-full bg-sky-500 text-white py-2 rounded-md my-4 font-medium duration-150 hover:bg-sky-600 disabled:bg-gray-400"
           >
             出品する
