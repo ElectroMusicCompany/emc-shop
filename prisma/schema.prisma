@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -79,6 +80,8 @@ model Item {
   comments     Comment[]
   reviews      Review[]
   reports      Report[]
+
+  @@fulltext([name])
 }
 
 model Image {

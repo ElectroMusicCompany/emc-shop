@@ -31,6 +31,7 @@ export default async function handler(
           state: req.body.state,
           shipping:
             req.body.shipping === "その他" ? req.body.shipping_other! : req.body.shipping,
+          deliveryDays: req.body.deliveryDays,
           stripe: req.body.stripe,
           price: Number(req.body.price),
           user: {
@@ -63,6 +64,7 @@ export default async function handler(
           state: req.body.state,
           shipping:
             req.body.shipping === "その他" ? req.body.shipping_other! : req.body.shipping,
+          deliveryDays: req.body.deliveryDays,
           stripe: req.body.stripe,
           price: Number(req.body.price),
           user: {

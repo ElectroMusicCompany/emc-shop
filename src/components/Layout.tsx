@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Noto_Sans_JP } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import { signIn, useSession } from "next-auth/react";
@@ -8,11 +8,25 @@ import { Transition, Menu } from "@headlessui/react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
 import { MdOutlineSearch, MdOutlineFileUpload } from "react-icons/md";
+import { useRouter } from "next/router";
 
 const notoSansJp = Noto_Sans_JP({ subsets: ["latin"] });
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({
+  children,
+  searchText,
+}: {
+  children: React.ReactNode;
+  searchText?: string;
+}) {
   const { data: session } = useSession();
+  const [search, setSearch] = useState("");
+  const router = useRouter();
+  useEffect(() => {
+    if (searchText) {
+      setSearch(searchText);
+    }
+  }, [searchText]);
   return (
     <div
       className={twMerge(
@@ -36,7 +50,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <input
               type="text"
               className="bg-gray-100 border border-gray-400 focus:ring-sky-500 focus:border-sky-500 rounded-md w-full"
-              placeholder="検索（見た目だけ）"
+              placeholder="商品を検索"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  router.push(`/search?keyword=${search}`);
+                }
+              }}
             />
             <MdOutlineSearch
               size={24}
