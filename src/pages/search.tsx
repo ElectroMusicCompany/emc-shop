@@ -9,20 +9,18 @@ import { useEffect, useState } from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { twMerge } from "tailwind-merge";
 import Pagination from "@/components/Pagination";
+import { search } from "@/lib/meilisearch";
 
-type ItemWithImages = Prisma.ItemGetPayload<{
-  select: {
-    id: true;
-    name: true;
-    price: true;
-    images: true;
-    order: {
-      select: {
-        id: true;
-      };
-    };
+type SearchItem = {
+  id: number;
+  name: string;
+  price: number;
+  image: {
+    id: string;
+    format: string;
   };
-}>;
+  order: boolean;
+};
 
 type sortType = {
   [key: string]: {
@@ -36,7 +34,7 @@ export default function Search({
   page,
   itemsCount,
 }: {
-  items: ItemWithImages[];
+  items: SearchItem[];
   page: number;
   itemsCount: number;
 }) {
@@ -354,7 +352,7 @@ export default function Search({
                 <ItemCard
                   item={item}
                   href={`/item/${item.id}`}
-                  sold={item.order != null}
+                  sold={item.order}
                   key={i}
                 />
               ))
@@ -374,6 +372,18 @@ export default function Search({
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  await search
+    .index("items")
+    .updateFilterableAttributes([
+      "state",
+      "shipping",
+      "points",
+      "price",
+      "order",
+    ]);
+  await search
+    .index("items")
+    .updateSortableAttributes(["price", "createdAt", "favorites"]);
   const {
     keyword,
     status,
@@ -384,26 +394,16 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     order = "desc",
     page = 1,
   } = ctx.query;
-  const wh: Prisma.ItemWhereInput = {
-    name: {
-      search: keyword as string,
-    },
-  };
-  const or: Prisma.ItemOrderByWithRelationAndSearchRelevanceInput = {};
+  const wh: string[] = [];
+  const or: string[] = [];
   if (status === "on_sale") {
-    wh.order = {
-      is: null,
-    };
+    wh.push("order IS NULL");
   }
   if (price_min) {
-    wh.price = {
-      gte: Number(price_min),
-    };
+    wh.push(`price >= ${price_min}`);
   }
   if (price_max) {
-    wh.price = {
-      lte: Number(price_max),
-    };
+    wh.push(`price <= ${price_max}`);
   }
   if (item_condition_id) {
     const state = [
@@ -414,42 +414,27 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       "傷や汚れあり",
       "全体的に状態が悪い",
     ];
-    wh.state = {
-      equals: state[Number(item_condition_id)],
-    };
+    wh.push(`state = ${state[Number(item_condition_id.toString())]}`);
   }
   if (!sort || sort === "created_time") {
-    or.createdAt = "desc";
+    or.push("createdAt:desc");
   }
   if (sort === "price") {
-    or.price = order as Prisma.SortOrder;
+    or.push(`price:${order}`);
   }
   if (sort === "num_likes") {
-    if (or.favorite) {
-      or.favorite._count = "desc";
-    }
+    or.push(`favorites:desc`);
   }
-
-  const items = await db.item.findMany({
-    select: {
-      id: true,
-      name: true,
-      price: true,
-      images: true,
-      order: {
-        select: {
-          id: true,
-        },
-      },
-    },
-    orderBy: or,
-    where: wh,
-    take: 24 * Number(page),
-    skip: 24 * (Number(page) - 1),
+  const items = await search.index("items").search(keyword as string, {
+    filter: wh.join(" AND "),
+    attributesToRetrieve: ["id", "name", "price", "image", "order"],
+    attributesToHighlight: [],
+    attributesToCrop: [],
+    limit: 24 * Number(page),
+    offset: 24 * (Number(page) - 1),
+    sort: or,
   });
-  const itemsCount = await db.item.count({
-    where: wh,
-  });
+  const itemsCount = items.estimatedTotalHits;
   if (!items) {
     return {
       notFound: true,
@@ -459,7 +444,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   return {
     props: {
       page,
-      items: JSON.parse(JSON.stringify(items)),
+      items: JSON.parse(JSON.stringify(items.hits)),
       itemsCount,
     },
   };

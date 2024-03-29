@@ -1,5 +1,11 @@
 # Changelog
 
+## 20240329
+
+- 検索機能をMeilisearchに置き換え
+  - Prismaからの移行
+  - `node scripts/migrate-meilisearch.js`
+
 ## 20240328
 
 - 検索機能の追加

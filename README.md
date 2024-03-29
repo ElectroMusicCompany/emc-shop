@@ -4,6 +4,8 @@ EMC Shop for EMC Discord Server
 
 ## Prerequisites
 
+* MariaDB (MySQL) Database
+* Meilisearch
 * Cloudflare R2
 * Discord Application
 * Stripe (Stripe Connectも必要)
