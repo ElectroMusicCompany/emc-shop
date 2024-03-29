@@ -80,105 +80,113 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getServerSession(req, res, authOptions);
+  try {
+    const session = await getServerSession(req, res, authOptions);
 
-  if (session) {
-    const user = await db.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
-    });
-    if (!user) {
-      return res.status(401).json({ status: "error", error: "Unauthorized" });
-    }
-    if (user.suspended) {
-      return res
-        .status(403)
-        .json({ status: "error", message: "Account suspended" });
-    }
-    const { itemId, buyerId, addressId } = req.query;
-    const item = await db.item.findUnique({
-      where: {
-        id: itemId?.toString(),
-      },
-      select: {
-        id: true,
-        price: true,
-        name: true,
-        stripe: true,
-        images: true,
-        points: true,
-        user: {
-          select: {
-            id: true,
-            stripeId: true,
+    if (session) {
+      const user = await db.user.findUnique({
+        where: {
+          id: session.user.id,
+        },
+      });
+      if (!user) {
+        return res.status(401).json({ status: "error", error: "Unauthorized" });
+      }
+      if (user.suspended) {
+        return res
+          .status(403)
+          .json({ status: "error", message: "Account suspended" });
+      }
+      const { itemId, buyerId, addressId } = req.query;
+      const item = await db.item.findUnique({
+        where: {
+          id: itemId?.toString(),
+        },
+        select: {
+          id: true,
+          price: true,
+          name: true,
+          stripe: true,
+          images: true,
+          points: true,
+          user: {
+            select: {
+              id: true,
+              stripeId: true,
+            },
           },
         },
-      },
-    });
-    if (!item) {
-      return res.status(404).json({ status: "error", error: "Item not found" });
-    }
-    if (!item.points) {
-      return res
-        .status(403)
-        .json({ status: "error", error: "Item not available for purchase" });
-    }
-    if (!item.stripe) {
-      if (item.price > user.points) {
-        const stripeSession = await stripe.checkout.sessions.create({
-          line_items: [
-            {
-              price_data: {
-                currency: "jpy",
-                product_data: {
-                  name: item.name,
-                  images: [
-                    getItemImage(item.images[0].id, item.images[0].format),
-                  ],
+      });
+      if (!item) {
+        return res
+          .status(404)
+          .json({ status: "error", error: "Item not found" });
+      }
+      if (!item.points) {
+        return res
+          .status(403)
+          .json({ status: "error", error: "Item not available for purchase" });
+      }
+      if (!item.stripe) {
+        if (item.price > user.points) {
+          const stripeSession = await stripe.checkout.sessions.create({
+            line_items: [
+              {
+                price_data: {
+                  currency: "jpy",
+                  product_data: {
+                    name: item.name,
+                    images: [
+                      getItemImage(item.images[0].id, item.images[0].format),
+                    ],
+                  },
+                  unit_amount: item.price - user.points,
                 },
-                unit_amount: item.price - user.points,
+                quantity: 1,
               },
-              quantity: 1,
+            ],
+            payment_intent_data: {
+              transfer_data: {
+                destination: item.user.stripeId || "",
+              },
             },
-          ],
-          payment_intent_data: {
-            transfer_data: {
-              destination: item.user.stripeId || "",
-            },
-          },
-          locale: "ja",
-          mode: "payment",
-          success_url: `https://shop.emcmusic.net/api/item/callback?itemId=${itemId}&buyerId=${buyerId}&addressId=${addressId}&points=${user.points}&sessionId={CHECKOUT_SESSION_ID}`,
-          cancel_url: `https://shop.emcmusic.net/purchase/${itemId}?canceled=true`,
-        });
-        return res
-          .status(303)
-          .json({ status: "success", redirect: session.url || "" });
-      } else {
-        const order = await purchase(user, item, addressId as string);
-        return res
-          .status(303)
-          .json({
+            locale: "ja",
+            mode: "payment",
+            success_url: `https://shop.emcmusic.net/api/item/callback?itemId=${itemId}&buyerId=${buyerId}&addressId=${addressId}&points=${user.points}&sessionId={CHECKOUT_SESSION_ID}`,
+            cancel_url: `https://shop.emcmusic.net/purchase/${itemId}?canceled=true`,
+          });
+          return res
+            .status(303)
+            .json({ status: "success", redirect: session.url || "" });
+        } else {
+          const order = await purchase(user, item, addressId as string);
+          return res.status(303).json({
             status: "success",
             redirect: `/purchase/complete?itemId=${item.id}&orderId=${order.id}`,
           });
-      }
-    } else {
-      if (item.price > user.points) {
-        return res
-          .status(403)
-          .json({ status: "error", error: "Insufficient points" });
-      }
-      const order = await purchase(user, item, addressId as string);
-      return res
-        .status(303)
-        .json({
+        }
+      } else {
+        if (item.price > user.points) {
+          return res
+            .status(403)
+            .json({ status: "error", error: "Insufficient points" });
+        }
+        const order = await purchase(user, item, addressId as string);
+        return res.status(303).json({
           status: "success",
           redirect: `/purchase/complete?itemId=${item.id}&orderId=${order.id}`,
         });
+      }
+    } else {
+      return res.status(401).json({ status: "error", error: "Unauthorized" });
     }
-  } else {
-    return res.status(401).json({ status: "error", error: "Unauthorized" });
+  } catch (e) {
+    console.error(e);
+    if (e instanceof Error) {
+      return res.status(500).json({ status: "error", error: e.message });
+    }
+    return res
+      .status(500)
+      .json({ status: "error", error: "An error occurred" });
   }
 }

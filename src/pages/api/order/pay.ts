@@ -7,35 +7,45 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getServerSession(req, res, authOptions);
-  if (session) {
-    const user = await db.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
-    });
-    const order = await db.order.findUnique({
-      where: {
-        id: req.body.orderId as string,
-      },
-      select: {
-        item: true
-      }
-    });
-    if (user && order?.item.userId === user.id) {
-      await db.order.update({
+  try {
+    const session = await getServerSession(req, res, authOptions);
+    if (session) {
+      const user = await db.user.findUnique({
+        where: {
+          id: session.user.id,
+        },
+      });
+      const order = await db.order.findUnique({
         where: {
           id: req.body.orderId as string,
         },
-        data: {
-          expiresAt: null,
+        select: {
+          item: true,
         },
       });
-      res.status(200).json({ status: "success" });
+      if (user && order?.item.userId === user.id) {
+        await db.order.update({
+          where: {
+            id: req.body.orderId as string,
+          },
+          data: {
+            expiresAt: null,
+          },
+        });
+        res.status(200).json({ status: "success" });
+      } else {
+        res.status(200).json({ status: "error", error: "User not found" });
+      }
     } else {
-      res.status(200).json({ status: "error", error: "User not found" });
+      res.status(403).json({ status: "error", message: "Unauthorized" });
     }
-  } else {
-    res.status(403).json({ status: "error", message: "Unauthorized"});
+  } catch (e) {
+    console.error(e);
+    if (e instanceof Error) {
+      return res.status(500).json({ status: "error", error: e.message });
+    }
+    return res
+      .status(500)
+      .json({ status: "error", error: "An error occurred" });
   }
 }

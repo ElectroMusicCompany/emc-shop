@@ -6,7 +6,10 @@ import { db } from "@/lib/prisma";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   try {
     const session = await getServerSession(req, res, authOptions);
     if (!session) {
@@ -16,7 +19,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: { id: session.user.id },
     });
     if (!user) {
-      return res.status(404).json({ status: "error", message: "User not found" });
+      return res
+        .status(404)
+        .json({ status: "error", message: "User not found" });
     }
     let accountId;
     if (!user.stripeId) {
@@ -37,7 +42,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         default_currency: "jpy",
       });
       accountId = account.id;
-      const origin = process.env.NODE_ENV === 'development' ? `http://${req.headers.host}` : `https://${req.headers.host}`
+      const origin =
+        process.env.NODE_ENV === "development"
+          ? `http://${req.headers.host}`
+          : `https://${req.headers.host}`;
       const accountLink = await stripe.accountLinks.create({
         account: accountId,
         refresh_url: `${origin}/mypage/bank`,
@@ -55,12 +63,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const loginLink = await stripe.accounts.createLoginLink(user.stripeId);
       res.status(200).json({ status: "success", url: loginLink.url });
     }
-  } catch (error) {
-    console.log(error);
-    if (error instanceof Error) {
-      return res.status(500).json({ status: "error", error: error.message });
+  } catch (e) {
+    console.log(e);
+    if (e instanceof Error) {
+      return res.status(500).json({ status: "error", error: e.message });
     } else {
-      return res.status(500).json({ status: "error", error: "An unknown error occurred" });
+      return res
+        .status(500)
+        .json({ status: "error", error: "An error occurred" });
     }
   }
 }

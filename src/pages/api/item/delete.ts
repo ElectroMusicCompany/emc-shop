@@ -36,6 +36,7 @@ export default async function handler(
       return res.status(401).json({ status: "error", error: "Unauthorized" });
     }
   } catch (e) {
+    console.error(e);
     if (e instanceof Error) {
       return res.status(500).json({ status: "error", error: e.message });
     }

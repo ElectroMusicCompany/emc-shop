@@ -5,6 +5,7 @@
 - 検索機能をMeilisearchに置き換え
   - Prismaからの移行
   - `node scripts/migrate-meilisearch.js`
+- APIのエラーハンドリング
 
 ## 20240328
 

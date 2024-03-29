@@ -7,29 +7,41 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getServerSession(req, res, authOptions);
-  if (session) {
-    const user = await db.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
-    });
-    if (user) {
-      if (user.suspended) {
-        return res.status(403).json({ status: "error", message: "Account suspended" });
-      }
-      const comment = await db.comment.create({
-        data: {
-          userId: user.id,
-          itemId: req.body.itemId as string,
-          text: req.body.text as string,
+  try {
+    const session = await getServerSession(req, res, authOptions);
+    if (session) {
+      const user = await db.user.findUnique({
+        where: {
+          id: session.user.id,
         },
       });
-      res.status(200).json({ status: "success", comment });
+      if (user) {
+        if (user.suspended) {
+          return res
+            .status(403)
+            .json({ status: "error", message: "Account suspended" });
+        }
+        const comment = await db.comment.create({
+          data: {
+            userId: user.id,
+            itemId: req.body.itemId as string,
+            text: req.body.text as string,
+          },
+        });
+        res.status(200).json({ status: "success", comment });
+      } else {
+        res.status(200).json({ status: "error", error: "User not found" });
+      }
     } else {
-      res.status(200).json({ status: "error", error: "User not found" });
+      res.status(403).json({ status: "error", message: "Unauthorized" });
     }
-  } else {
-    res.status(403).json({ status: "error", message: "Unauthorized"});
+  } catch (e) {
+    console.error(e);
+    if (e instanceof Error) {
+      return res.status(500).json({ status: "error", error: e.message });
+    }
+    return res
+      .status(500)
+      .json({ status: "error", error: "An error occurred" });
   }
 }
