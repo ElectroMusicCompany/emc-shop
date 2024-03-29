@@ -46,6 +46,15 @@ export default function Search({
     condition: false,
     onsale: false,
   });
+  const [priceMin, setPriceMin] = useState<number | null>(null);
+  const [priceMax, setPriceMax] = useState<number | null>(null);
+  const typewatch = (function () {
+    let timer: number | NodeJS.Timeout = 0;
+    return function (callback: () => void, ms: number) {
+      clearTimeout(timer);
+      timer = setTimeout(callback, ms);
+    };
+  })();
   const sorts: sortType = {
     new: {
       order: "desc",
@@ -83,6 +92,12 @@ export default function Search({
     }
     if (router.query.item_condition_id) {
       setAccordion((prev) => ({ ...prev, condition: true }));
+    }
+    if (router.query.price_min) {
+      setPriceMin(Number(router.query.price_min));
+    }
+    if (router.query.price_max) {
+      setPriceMax(Number(router.query.price_max));
     }
   }, []);
   return (
@@ -151,14 +166,28 @@ export default function Search({
                 type="number"
                 placeholder="¥300"
                 className="w-full rounded no-spin focus:ring-sky-500 focus:border-sky-500"
-                value={router.query.price_min || ""}
+                value={priceMin || ""}
+                onKeyUp={(e) => {
+                  typewatch(() => {
+                    if (priceMin) {
+                      const query = router.query;
+                      query.price_min = priceMin?.toString();
+                      router.push({
+                        pathname: router.pathname,
+                        query: query,
+                      });
+                    } else {
+                      const query = router.query;
+                      delete query.price_min;
+                      router.push({
+                        pathname: router.pathname,
+                        query: query,
+                      });
+                    }
+                  }, 700);
+                }}
                 onChange={(e) => {
-                  const query = router.query;
-                  query.price_min = e.target.value;
-                  router.push({
-                    pathname: router.pathname,
-                    query: query,
-                  });
+                  setPriceMin(Number(e.target.value));
                 }}
               />
               <p className="px-4">-</p>
@@ -166,14 +195,28 @@ export default function Search({
                 type="number"
                 placeholder="¥9,999,999"
                 className="w-full rounded no-spin focus:ring-sky-500 focus:border-sky-500"
-                value={router.query.price_max || ""}
+                value={priceMax || ""}
+                onKeyUp={(e) => {
+                  typewatch(() => {
+                    if (priceMax) {
+                      const query = router.query;
+                      query.price_max = priceMax?.toString();
+                      router.push({
+                        pathname: router.pathname,
+                        query: query,
+                      });
+                    } else {
+                      const query = router.query;
+                      delete query.price_max;
+                      router.push({
+                        pathname: router.pathname,
+                        query: query,
+                      });
+                    }
+                  }, 700);
+                }}
                 onChange={(e) => {
-                  const query = router.query;
-                  query.price_max = e.target.value;
-                  router.push({
-                    pathname: router.pathname,
-                    query: query,
-                  });
+                  setPriceMax(Number(e.target.value));
                 }}
               />
             </div>
