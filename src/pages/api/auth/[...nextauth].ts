@@ -24,6 +24,12 @@ export const authOptions = {
       );
       if (res.ok) {
         const user = await res.json();
+        const role_id = process.env.NEXT_PUBLIC_DISCORD_ROLE_ID;
+        if (role_id) {
+          if (!user.roles.includes(role_id)) {
+            return await false;
+          }
+        }
         await db.user.upsert({
           where: {
             id: user.user.id
