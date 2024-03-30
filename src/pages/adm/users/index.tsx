@@ -134,12 +134,12 @@ export default function AdminItems({
             })}
           </tbody>
         </table>
-        <AdminPagination
-          count={Math.floor(usersCount / 24) || 1}
-          page={page}
-          path="users"
-        />
       </div>
+      <AdminPagination
+        count={Math.floor(usersCount / 24) || 1}
+        page={page}
+        path="users"
+      />
     </AdminLayout>
   );
 }

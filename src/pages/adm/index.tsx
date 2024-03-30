@@ -28,6 +28,9 @@ export default function AdminPage({
       <h2 className="text-2xl font-bold">管理画面</h2>
       <div className="my-8 flex md:flex-row flex-col gap-4">
         <AdminCard title="バージョン情報">
+          {latestVersion !== version && (
+            <p className="text-red-500 font-bold">最新バージョンがあります！</p>
+          )}
           <p>最新：{latestVersion}</p>
           <p>現在：{version}</p>
         </AdminCard>

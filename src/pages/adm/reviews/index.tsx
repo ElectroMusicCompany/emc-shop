@@ -96,7 +96,7 @@ export default function AdminItems({
                         {i === 0 ? (
                           <Link
                             className="text-sky-500 hover:underline"
-                            href={`/adm/reports/${cell
+                            href={`/adm/reviews/${cell
                               .getContext()
                               .getValue()}`}
                           >
@@ -151,12 +151,12 @@ export default function AdminItems({
             })}
           </tbody>
         </table>
-        <AdminPagination
-          count={Math.floor(reviewsCount / 24) || 1}
-          page={page}
-          path="reviews"
-        />
       </div>
+      <AdminPagination
+        count={Math.floor(reviewsCount / 24) || 1}
+        page={page}
+        path="reviews"
+      />
     </AdminLayout>
   );
 }

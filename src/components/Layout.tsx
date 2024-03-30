@@ -14,9 +14,11 @@ const notoSansJp = Noto_Sans_JP({ subsets: ["latin"] });
 
 export default function Layout({
   children,
+  className,
   searchText,
 }: {
   children: React.ReactNode;
+  className?: string;
   searchText?: string;
 }) {
   const { data: session } = useSession();
@@ -30,7 +32,7 @@ export default function Layout({
   return (
     <div
       className={twMerge(
-        "flex flex-col items-center justify-center min-h-screen",
+        "relative flex flex-col items-center justify-center min-h-screen",
         notoSansJp.className
       )}
     >

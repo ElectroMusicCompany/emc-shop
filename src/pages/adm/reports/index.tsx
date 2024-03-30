@@ -145,12 +145,12 @@ export default function AdminItems({
             })}
           </tbody>
         </table>
-        <AdminPagination
-          count={Math.floor(reportsCount / 24) || 1}
-          page={page}
-          path="reports"
-        />
       </div>
+      <AdminPagination
+        count={Math.floor(reportsCount / 24) || 1}
+        page={page}
+        path="reports"
+      />
     </AdminLayout>
   );
 }

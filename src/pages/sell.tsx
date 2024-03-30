@@ -14,6 +14,22 @@ import { Prisma } from "@prisma/client";
 import Link from "next/link";
 import NextHeadSeo from "next-head-seo";
 import { getItemImage } from "@/utils/images";
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  rectSortingStrategy,
+  SortableContext,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import PhotoItem from "@/components/PhotoItem";
+import SortablePhotoItem from "@/components/SortablePhotoItem";
 
 type Inputs = {
   name: string;
@@ -53,6 +69,7 @@ export default function Sell({
   const router = useRouter();
   const [images, setImages] = useState<File[]>([]);
   const [thumbs, setThumbs] = useState<Thumb[]>([]);
+  const [activeItem, setActiveItem] = useState<Thumb | null>(null);
   const {
     register,
     formState: { errors, isValid },
@@ -229,6 +246,10 @@ export default function Sell({
     "傷や汚れあり",
     "全体的に状態が悪い",
   ];
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 3 } }),
+    useSensor(TouchSensor)
+  );
   useEffect(() => {
     if (item) {
       setValue("name", item.name);
@@ -246,7 +267,7 @@ export default function Sell({
       setValue("points", item.points);
       setValue("price", item.price);
       setThumbs(
-        item.images.reverse().map((img) => ({
+        item.images.map((img) => ({
           id: img.id,
           url: getItemImage(img.id, img.format),
         }))
@@ -275,18 +296,45 @@ export default function Sell({
           <div className="flex flex-col mb-4">
             <div className="flex mb-2">
               {thumbs.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                  {Array.from(thumbs)
-                    .reverse()
-                    .map((thumb, i) => (
-                      <div className="relative" key={i}>
-                        <img
-                          src={thumb.url}
-                          alt=""
-                          className="h-32 object-cover aspect-square rounded-md"
-                        />
-                        <button
-                          type="button"
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={(e) => {
+                    if (e.active.data.current) {
+                      console.log("drag start", e.active.data.current);
+                      setActiveItem(e.active.data.current as Thumb);
+                    }
+                  }}
+                  onDragEnd={(e) => {
+                    if (e.over?.id) {
+                      const over = thumbs.findIndex(
+                        (thumb) => thumb.id === e.over?.id
+                      );
+                      const from = thumbs.findIndex(
+                        (thumb) => thumb.id === e.active.data.current?.id
+                      );
+                      console.log("drag end", from, over);
+                      const newThumbs = arrayMove(thumbs, from, over);
+                      setThumbs(newThumbs);
+                    }
+                    setActiveItem(null);
+                  }}
+                  onDragCancel={() => {
+                    setActiveItem(null);
+                  }}
+                >
+                  <DragOverlay adjustScale style={{ transformOrigin: "0 0 " }}>
+                    {activeItem ? <PhotoItem item={activeItem} /> : null}
+                  </DragOverlay>
+                  <SortableContext
+                    items={thumbs}
+                    strategy={rectSortingStrategy}
+                  >
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                      {thumbs.map((thumb, i) => (
+                        <SortablePhotoItem
+                          item={thumb}
+                          key={thumb.id}
                           onClick={() => {
                             if (thumb.url.startsWith("data:")) {
                               const newImages = images.filter(
@@ -302,13 +350,11 @@ export default function Sell({
                               );
                             }
                           }}
-                          className="absolute top-1 right-1 bg-white rounded-full p-1"
-                        >
-                          <MdOutlineClose size={16} />
-                        </button>
-                      </div>
-                    ))}
-                </div>
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               )}
             </div>
             {thumbs && thumbs.length >= 10 ? (

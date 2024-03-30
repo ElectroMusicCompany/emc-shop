@@ -8,6 +8,7 @@ import { GoHeart, GoHeartFill } from "react-icons/go";
 import {
   MdOutlineKeyboardArrowRight,
   MdOutlineKeyboardArrowLeft,
+  MdOutlineClose,
 } from "react-icons/md";
 import { GrFlag } from "react-icons/gr";
 import { formatDistanceToNow } from "date-fns";
@@ -23,6 +24,12 @@ import NextHeadSeo from "next-head-seo";
 import { twMerge } from "tailwind-merge";
 import ReactMarkdown from "react-markdown";
 import { getAvatar, getItemImage } from "@/utils/images";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperType } from "swiper";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Pagination } from "swiper/modules";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   select: {
@@ -105,6 +112,8 @@ export default function ItemPage({
   const [isLiked, setIsLiked] = useState(false);
   const [comment, setComment] = useState("");
   const [image, setImage] = useState(0);
+  const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const [swiper, setSwiper] = useState<SwiperType | null>(null);
   const router = useRouter();
   useEffect(() => {
     if (user) {
@@ -130,6 +139,41 @@ export default function ItemPage({
           card: "summary",
         }}
       />
+      {zoomImage && (
+        <div
+          className={twMerge(
+            "fixed inset-0 z-50 bg-black/80 hidden justify-center items-center duration-150",
+            zoomImage && "flex"
+          )}
+          onClick={() => {
+            document.body.style.cssText = "";
+            setZoomImage(null);
+          }}
+        >
+          <div
+            className="relative w-full md:w-11/12 h-5/6"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <Image
+              src={zoomImage || ""}
+              alt={item.name}
+              fill={true}
+              className="object-contain"
+            />
+          </div>
+          <button
+            className="absolute top-4 right-4 text-gray-400 p-1 duration-150 hover:text-white"
+            onClick={() => {
+              document.body.style.cssText = "";
+              setZoomImage(null);
+            }}
+          >
+            <MdOutlineClose size={24} />
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="flex-col flex lg:flex-row gap-2">
           <div className="order-last lg:order-first grid grid-cols-4 md:grid-cols-6 gap-2 lg:gap-0 lg:w-20 lg:h-full lg:flex lg:flex-col">
@@ -142,7 +186,10 @@ export default function ItemPage({
                     ? "border-2 border-sky-500"
                     : "border-2 border-gray-200"
                 )}
-                onClick={() => setImage(i)}
+                onClick={() => {
+                  swiper?.slideTo(i);
+                  setImage(i);
+                }}
               >
                 <Image
                   src={getItemImage(img.id, img.format)}
@@ -153,47 +200,53 @@ export default function ItemPage({
               </button>
             ))}
           </div>
-          <div className="grow relative h-96 bg-gray-200">
-            <Image
-              src={getItemImage(
-                item.images[image].id,
-                item.images[image].format
-              )}
-              alt={item.name}
-              fill={true}
-              className="object-contain rounded-md"
-            />
-            {item.order != null && (
-              <>
-                <div className="absolute border-l-[7rem] border-b-[7rem] border-transparent rounded-tl-md border-l-red-500 inline-block left-0 top-0"></div>
-                <div className="absolute text-xl text-white top-5 left-2 -rotate-45">
-                  SOLD
+          <Swiper
+            modules={[Pagination]}
+            spaceBetween={10}
+            slidesPerView={1}
+            pagination={{ clickable: true }}
+            onSlideChange={(swiper) => setImage(swiper.activeIndex)}
+            onSwiper={(swiper) => setSwiper(swiper)}
+            className="w-full bg-gray-200 h-min"
+          >
+            {item.images.map((img) => (
+              <SwiperSlide
+                key={img.id}
+                className="h-min"
+                onClick={() => {
+                  document.body.style.cssText = "overflow-y: hidden;";
+                  setZoomImage(getItemImage(img.id, img.format));
+                }}
+              >
+                <div className="relative aspect-square cursor-zoom-in">
+                  <Image
+                    src={getItemImage(img.id, img.format)}
+                    alt={item.name}
+                    fill={true}
+                    className="object-contain"
+                  />
                 </div>
-              </>
-            )}
+              </SwiperSlide>
+            ))}
             <button
               className={twMerge(
-                "absolute top-1/2 -translate-y-1/2 right-2 bg-black/50 text-white rounded-full p-1.5 duration-150 hover:bg-black/80",
+                "absolute z-20 top-1/2 -translate-y-1/2 right-2 bg-black/50 text-white rounded-full p-1.5 duration-150 hover:bg-black/80",
                 item.images.length <= image + 1 && "hidden"
               )}
-              onClick={() => {
-                setImage((image + 1) % item.images.length);
-              }}
+              onClick={() => swiper?.slideNext()}
             >
               <MdOutlineKeyboardArrowRight size={24} />
             </button>
             <button
               className={twMerge(
-                "absolute top-1/2 -translate-y-1/2 left-2 bg-black/50 text-white rounded-full p-1.5 duration-150 hover:bg-black/80",
+                "absolute z-20 top-1/2 -translate-y-1/2 left-2 bg-black/50 text-white rounded-full p-1.5 duration-150 hover:bg-black/80",
                 image - 1 < 0 && "hidden"
               )}
-              onClick={() => {
-                setImage((image - 1 + item.images.length) % item.images.length);
-              }}
+              onClick={() => swiper?.slidePrev()}
             >
               <MdOutlineKeyboardArrowLeft size={24} />
             </button>
-          </div>
+          </Swiper>
         </div>
         <div className="text-left">
           <h3 className="text-2xl font-semibold mb-1">{item.name}</h3>
