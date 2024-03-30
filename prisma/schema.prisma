@@ -37,21 +37,21 @@ model User {
 model Address {
   id        String   @id @default(cuid())
   // 姓
-  lastName  String
+  lastName  String /// @encrypted
   // 名
-  firstName String
+  firstName String /// @encrypted
   // 建物名
-  building  String?
+  building  String? /// @encrypted
   // 番地
-  street    String
+  street    String /// @encrypted
   // 市区町村
-  city      String
+  city      String /// @encrypted
   // 都道府県
-  state     String
+  state     String /// @encrypted
   // 郵便番号
-  zip       String
+  zip       String /// @encrypted
   // 電話番号
-  phone     String
+  phone     String /// @encrypted
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
@@ -97,12 +97,12 @@ model Order {
   expiresAt DateTime?
   item      Item      @relation(fields: [itemId], references: [id])
   itemId    String    @unique
-  sessionId String
+  sessionId String /// @encrypted
   userId    String
   user      User      @relation(fields: [userId], references: [id])
   complete  Boolean   @default(false)
   shipped   Boolean   @default(false)
-  tracking  String?
+  tracking  String? /// @encrypted
   address   Address   @relation(fields: [addressId], references: [id])
   addressId String
   chats     Chat[]
@@ -145,7 +145,7 @@ model Comment {
 
 model Chat {
   id        String   @id @default(cuid())
-  text      String
+  text      String /// @encrypted
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
@@ -156,7 +156,7 @@ model Chat {
 
 model Report {
   id        String   @id @default(cuid())
-  text      String
+  text      String /// @encrypted
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String?
