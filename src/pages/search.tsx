@@ -416,7 +416,7 @@ export default function Search({
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   await search
-    .index("items")
+    .index("es_items")
     .updateFilterableAttributes([
       "state",
       "shipping",
@@ -425,8 +425,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       "order",
     ]);
   await search
-    .index("items")
+    .index("es_items")
     .updateSortableAttributes(["price", "createdAt", "favorites"]);
+  await search
+    .index("es_items")
+    .updateSearchableAttributes(["name", "description"]);
   const {
     keyword,
     status,
@@ -468,7 +471,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (sort === "num_likes") {
     or.push(`favorites:desc`);
   }
-  const items = await search.index("items").search(keyword as string, {
+  const items = await search.index("es_items").search(keyword as string, {
     filter: wh.join(" AND "),
     attributesToRetrieve: ["id", "name", "price", "image", "order"],
     attributesToHighlight: [],

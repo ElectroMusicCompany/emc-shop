@@ -62,7 +62,7 @@ export default async function handler(
             },
           });
         }
-        await search.index("items").updateDocuments([
+        await search.index("es_items").updateDocuments([
           {
             id: item.id,
             name: item.name,
@@ -111,7 +111,7 @@ export default async function handler(
             },
           });
         }
-        await search.index("items").updateDocuments([
+        await search.index("es_items").updateDocuments([
           {
             id: item.id,
             name: item.name,

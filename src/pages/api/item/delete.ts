@@ -27,7 +27,7 @@ export default async function handler(
             id: req.body.id,
           },
         });
-        await search.index("items").deleteDocument(item.id);
+        await search.index("es_items").deleteDocument(item.id);
         return res.status(200).json({ status: "success", itemId: item.id });
       } else {
         return res.status(400).json({ status: "error", error: "Missing id" });

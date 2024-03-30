@@ -31,7 +31,7 @@ export default async function handler(
             id: itemId,
           },
         });
-        await search.index("items").deleteDocument(itemId.toString());
+        await search.index("es_items").deleteDocument(itemId.toString());
         return res.status(200).json({ status: "success", address: n });
       } else if (reportId) {
         const n = await db.report.delete({

@@ -28,7 +28,8 @@ async function main() {
       }
     },
   });
-  const index = meili.index("items");
+  await meili.deleteIndexIfExists("items");
+  const index = meili.index("es_items");
   await index.deleteAllDocuments();
   const filtered = allItems.map((item) => {
     return {
