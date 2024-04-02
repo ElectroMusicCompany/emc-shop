@@ -8,3 +8,26 @@ services:
       - ./:/app
     working_dir: /app
     command: sh -c "pnpm i --frozen-lockfile && pnpm dev"
+    environment:
+      - MEILISEARCH_HOST=http://meilisearch:7700
+      - MEILISEARCH_API_KEY=${MEILISEARCH_API_KEY:-masterKey}
+  meilisearch:
+    container_name: meilisearch
+    image: getmeili/meilisearch:v0.25.2
+    environment:
+      - http_proxy
+      - https_proxy
+      - MEILI_MASTER_KEY=${MEILISEARCH_API_KEY:-masterKey}
+      - MEILI_ENV=production
+      - MEILI_NO_ANALYTICS=true
+    ports:
+      - ${MEILI_PORT:-7700}:7700
+    networks:
+      - meilisearch
+    volumes:
+      - ./meili_data:/meili_data
+    restart: unless-stopped
+
+networks:
+  meilisearch:
+    driver: bridge
