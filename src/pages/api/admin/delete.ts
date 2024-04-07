@@ -53,6 +53,12 @@ export default async function handler(
             id: orderId,
           },
         });
+        await search.index("es_items").updateDocuments([
+          {
+            id: n.itemId,
+            order: false,
+          },
+        ]);
         return res.status(200).json({ status: "success", address: n });
       } else if (userId) {
         const n = await db.user.update({
@@ -63,6 +69,9 @@ export default async function handler(
             suspended: true,
           },
         });
+        await search.index("es_items").deleteDocuments({
+          filter: `userId = ${userId}`,
+        })
         return res.status(200).json({ status: "success", address: n });
       } else {
         return res

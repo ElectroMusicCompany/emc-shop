@@ -64,6 +64,7 @@ model Item {
   name         String
   price        Int
   description  String?
+  category     Int        @default(999)
   state        String
   shipping     String
   deliveryDays String     @default("1-2")

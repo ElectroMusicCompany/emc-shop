@@ -239,7 +239,7 @@ export default function Sell({
   ];
 
   const state = [
-    "新品・未開封",
+    "新品、未使用",
     "未使用に近い",
     "目立った傷や汚れなし",
     "やや傷や汚れあり",

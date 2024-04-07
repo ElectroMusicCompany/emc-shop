@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { db } from "@/lib/prisma";
 import { getItemImage } from "@/utils/images";
+import { search } from "@/lib/meilisearch";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
@@ -52,6 +53,12 @@ export default async function handler(
           .status(404)
           .json({ status: "error", error: "Item not found" });
       }
+      await search.index("es_items").updateDocuments([
+        {
+          id: item.id,
+          order: true,
+        },
+      ]);
       if (!item.stripe) {
         const stripeSession = await stripe.checkout.sessions.create({
           line_items: [

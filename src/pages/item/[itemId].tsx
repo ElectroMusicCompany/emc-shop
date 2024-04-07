@@ -30,6 +30,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
+import { categoryToId, idToCategory } from "@/lib/category";
 
 type ItemWithImages = Prisma.ItemGetPayload<{
   select: {
@@ -39,6 +40,7 @@ type ItemWithImages = Prisma.ItemGetPayload<{
     description: true;
     state: true;
     shipping: true;
+    category: true;
     deliveryDays: true;
     stripe: true;
     createdAt: true;
@@ -344,6 +346,26 @@ export default function ItemPage({
           <table className="table-auto w-full">
             <tbody>
               <tr>
+                <td className="font-semibold py-2">カテゴリー</td>
+                <td>
+                  {idToCategory(item.category).map((category, i) => (
+                    <Link
+                      href={`/search?category_id=${categoryToId(category)}`}
+                      key={i}
+                      className="flex items-center py-1"
+                    >
+                      <span className="underline text-sky-500">{category}</span>
+                      {idToCategory(item.category).length - 1 !== i && (
+                        <MdOutlineKeyboardArrowRight
+                          className="mt-0.5"
+                          size={20}
+                        />
+                      )}
+                    </Link>
+                  ))}
+                </td>
+              </tr>
+              <tr>
                 <td className="font-semibold py-2">商品の状態</td>
                 <td>{item.state}</td>
               </tr>
@@ -479,6 +501,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       stripe: true,
       createdAt: true,
       images: true,
+      category: true,
       order: {
         select: {
           id: true,

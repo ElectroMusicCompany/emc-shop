@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { db } from "@/lib/prisma";
 import { getItemImage } from "@/utils/images";
+import { search } from "@/lib/meilisearch";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
@@ -52,6 +53,12 @@ const purchase = async (
       sessionId: "emc-point",
     },
   });
+  await search.index("es_items").updateDocuments([
+    {
+      id: item.id,
+      order: true,
+    },
+  ]);
   await fetch(`${process.env.DISCORD_BOT_WEB_URL}/purchase`, {
     method: "POST",
     headers: {

@@ -15,12 +15,14 @@ async function main() {
       description: true,
       state: true,
       shipping: true,
+      category: true,
       deliveryDays: true,
       points: true,
       price: true,
       order: true,
       images: true,
       createdAt: true,
+      userId: true,
       _count: {
         select: {
           favorite: true,
@@ -38,6 +40,7 @@ async function main() {
       description: item.description,
       state: item.state,
       shipping: item.shipping,
+      category: item.category,
       deliveryDays: item.deliveryDays,
       points: item.points,
       price: item.price,
@@ -47,6 +50,7 @@ async function main() {
         format: item.images[0].format,
       },
       favorites: item._count.favorite,
+      userId: item.userId,
       createdAt: Math.floor(item.createdAt.getTime() / 1000)
     };
   });

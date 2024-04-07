@@ -37,6 +37,7 @@ export default async function handler(
               req.body.shipping === "その他"
                 ? req.body.shipping_other!
                 : req.body.shipping,
+            category: req.body.category,
             deliveryDays: req.body.deliveryDays,
             stripe: req.body.stripe,
             points: req.body.points,
@@ -68,6 +69,7 @@ export default async function handler(
             name: item.name,
             description: item.description,
             state: item.state,
+            category: item.category,
             shipping: item.shipping,
             deliveryDays: item.deliveryDays,
             price: item.price,
@@ -86,6 +88,7 @@ export default async function handler(
               req.body.shipping === "その他"
                 ? req.body.shipping_other!
                 : req.body.shipping,
+            category: req.body.category,
             deliveryDays: req.body.deliveryDays,
             stripe: req.body.stripe,
             points: req.body.points,
@@ -117,6 +120,7 @@ export default async function handler(
             name: item.name,
             description: item.description,
             state: item.state,
+            category: item.category,
             shipping: item.shipping,
             deliveryDays: item.deliveryDays,
             price: item.price,

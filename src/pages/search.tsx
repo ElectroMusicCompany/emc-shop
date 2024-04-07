@@ -10,6 +10,15 @@ import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { twMerge } from "tailwind-merge";
 import Pagination from "@/components/Pagination";
 import { search } from "@/lib/meilisearch";
+import {
+  categories,
+  categoryToId,
+  getParentCategory,
+  getSubcategories,
+  hasSubcategories,
+  idToCategory,
+} from "@/lib/category";
+import { set } from "date-fns";
 
 type SearchItem = {
   id: number;
@@ -45,9 +54,11 @@ export default function Search({
     price: false,
     condition: false,
     onsale: false,
+    category_id: false,
   });
   const [priceMin, setPriceMin] = useState<number | null>(null);
   const [priceMax, setPriceMax] = useState<number | null>(null);
+  const [category, setCategory] = useState<string[]>([]);
   const typewatch = (function () {
     let timer: number | NodeJS.Timeout = 0;
     return function (callback: () => void, ms: number) {
@@ -98,6 +109,10 @@ export default function Search({
     }
     if (router.query.price_max) {
       setPriceMax(Number(router.query.price_max));
+    }
+    if (router.query.category_id) {
+      setAccordion((prev) => ({ ...prev, category_id: true }));
+      setCategory(idToCategory(Number(router.query.category_id.toString())));
     }
   }, []);
   return (
@@ -272,6 +287,152 @@ export default function Search({
               onClick={() =>
                 setAccordion((prev) => ({
                   ...prev,
+                  category_id: !prev.category_id,
+                }))
+              }
+            >
+              <p className="w-full text-left font-bold">カテゴリー</p>
+              {accordion.category_id ? (
+                <MdKeyboardArrowUp size={28} />
+              ) : (
+                <MdKeyboardArrowDown size={28} />
+              )}
+            </button>
+            <div
+              className={twMerge(
+                "items-center justify-between mt-2",
+                accordion.category_id ? "flex" : "hidden"
+              )}
+            >
+              <select
+                className="w-full rounded focus:ring-sky-500 focus:border-sky-500"
+                value={categoryToId(category[0]) || ""}
+                onChange={(e) => {
+                  const query = router.query;
+                  query.category_id = e.target.value;
+                  if (e.target.value === "") {
+                    delete query.category_id;
+                  }
+                  setCategory(idToCategory(Number(e.target.value)));
+                  router.push({
+                    pathname: router.pathname,
+                    query: query,
+                  });
+                }}
+              >
+                <option value="">全て</option>
+                {Object.keys(categories).map((id, i) => (
+                  <option key={i} value={id}>
+                    {categories[Number(id)]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {(category.length > 1 ||
+              hasSubcategories(Number(categoryToId(category[0])))) && (
+              <div
+                className={twMerge(
+                  "items-center justify-between mt-2",
+                  accordion.category_id ? "flex" : "hidden"
+                )}
+              >
+                <select
+                  className="w-full rounded focus:ring-sky-500 focus:border-sky-500"
+                  value={categoryToId(category[1]) || ""}
+                  onChange={(e) => {
+                    const query = router.query;
+                    query.category_id = e.target.value;
+                    if (e.target.value === "") {
+                      if (
+                        getParentCategory(Number(categoryToId(category[1]))) ===
+                        0
+                      ) {
+                        delete query.category_id;
+                        setCategory([]);
+                      } else {
+                        query.category_id = getParentCategory(
+                          Number(categoryToId(category[1]))
+                        ).toString();
+                        setCategory(
+                          idToCategory(
+                            getParentCategory(Number(categoryToId(category[1])))
+                          )
+                        );
+                      }
+                    } else {
+                      setCategory(idToCategory(Number(e.target.value)));
+                    }
+                    router.push({
+                      pathname: router.pathname,
+                      query: query,
+                    });
+                  }}
+                >
+                  <option value="">全て</option>
+                  {getSubcategories(categoryToId(category[0])).map((id, i) => (
+                    <option key={i} value={id}>
+                      {idToCategory(id)[1]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {(category.length > 2 ||
+              hasSubcategories(Number(categoryToId(category[1])))) && (
+              <div
+                className={twMerge(
+                  "items-center justify-between mt-2",
+                  accordion.category_id ? "flex" : "hidden"
+                )}
+              >
+                <select
+                  className="w-full rounded focus:ring-sky-500 focus:border-sky-500"
+                  value={categoryToId(category[2]) || ""}
+                  onChange={(e) => {
+                    const query = router.query;
+                    query.category_id = e.target.value;
+                    if (e.target.value === "") {
+                      if (
+                        getParentCategory(Number(categoryToId(category[2]))) ===
+                        0
+                      ) {
+                        delete query.category_id;
+                        setCategory([]);
+                      } else {
+                        query.category_id = getParentCategory(
+                          Number(categoryToId(category[2]))
+                        ).toString();
+                        setCategory(
+                          idToCategory(
+                            getParentCategory(Number(categoryToId(category[2])))
+                          )
+                        );
+                      }
+                    } else {
+                      setCategory(idToCategory(Number(e.target.value)));
+                    }
+                    router.push({
+                      pathname: router.pathname,
+                      query: query,
+                    });
+                  }}
+                >
+                  <option value="">全て</option>
+                  {getSubcategories(categoryToId(category[1])).map((id, i) => (
+                    <option key={i} value={id}>
+                      {idToCategory(id)[2]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+          <div className="py-3 border-b">
+            <button
+              className="w-full flex justify-between items-center"
+              onClick={() =>
+                setAccordion((prev) => ({
+                  ...prev,
                   onsale: !prev.onsale,
                 }))
               }
@@ -423,6 +584,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       "points",
       "price",
       "order",
+      "category",
     ]);
   await search
     .index("es_items")
@@ -436,11 +598,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     price_min,
     price_max,
     item_condition_id,
+    category_id,
     sort,
     order = "desc",
     page = 1,
   } = ctx.query;
   const wh: string[] = [];
+  const ct: string[] = [];
   const or: string[] = [];
   if (status === "on_sale") {
     wh.push("order IS NULL");
@@ -460,7 +624,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       "傷や汚れあり",
       "全体的に状態が悪い",
     ];
-    wh.push(`state = ${state[Number(item_condition_id.toString())]}`);
+    wh.push(`state = "${state[Number(item_condition_id.toString())]}"`);
+  }
+  if (category_id) {
+    ct.push(category_id.toString());
+    if (hasSubcategories(Number(category_id))) {
+      getSubcategories(Number(category_id)).forEach((id) => {
+        ct.push(id.toString());
+      });
+    }
   }
   if (!sort || sort === "created_time") {
     or.push("createdAt:desc");
@@ -472,7 +644,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     or.push(`favorites:desc`);
   }
   const items = await search.index("es_items").search(keyword as string, {
-    filter: wh.join(" AND "),
+    filter: `${wh.join(" AND ")}${
+      ct.length != 0 && wh.length != 0 ? " AND " : ""
+    }${ct.length != 0 ? `category IN [${ct.join(", ")}]` : ""}`,
     attributesToRetrieve: ["id", "name", "price", "image", "order"],
     attributesToHighlight: [],
     attributesToCrop: [],
